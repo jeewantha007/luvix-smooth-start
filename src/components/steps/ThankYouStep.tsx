@@ -9,18 +9,18 @@ interface ThankYouProps {
 export const ThankYouStep = ({ formData }: ThankYouProps) => {
   const handleCheckout = () => {
     // TODO: Implement Stripe/PayPal checkout
-    console.log("Proceeding to checkout with plan:", formData.selectedPlan);
+    console.log("Proceeding to checkout for $79 setup fee");
   };
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center">
       <div className="text-center space-y-8 max-w-2xl mx-auto animate-fade-in">
         <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-gradient-to-br from-primary to-primary-glow mb-4 animate-scale-in">
-          <CheckCircle2 className="h-12 w-12 text-primary-foreground" />
+          <CheckCircle2 className="h-12 w-12 text-white" />
         </div>
 
         <div className="space-y-4">
-          <h1 className="text-4xl md:text-5xl font-bold tracking-tight">
+          <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-foreground">
             Thank You, {formData.contactName || formData.fullName}!
           </h1>
           <p className="text-xl text-muted-foreground">
@@ -64,26 +64,32 @@ export const ThankYouStep = ({ formData }: ThankYouProps) => {
             </ul>
           </div>
 
-          {formData.selectedPlan && (
-            <div className="pt-6 border-t border-border">
-              <div className="bg-primary/5 border border-primary/20 rounded-lg p-6 mb-4">
-                <h4 className="font-semibold text-lg mb-2">Selected Plan</h4>
-                <p className="text-2xl font-bold text-primary capitalize">{formData.selectedPlan}</p>
+          <div className="pt-6 border-t border-border">
+            <div className="bg-gradient-to-br from-primary/10 to-primary/5 border-2 border-primary rounded-xl p-8 mb-6">
+              <h4 className="font-semibold text-2xl mb-3 text-foreground">Initial Setup Fee</h4>
+              <div className="flex items-center justify-center gap-2 mb-4">
+                <span className="text-5xl font-bold text-primary">$79</span>
+                <span className="text-muted-foreground text-lg">one-time</span>
               </div>
-              <Button
-                variant="hero"
-                size="lg"
-                onClick={handleCheckout}
-                className="w-full"
-              >
-                <CreditCard className="mr-2 h-5 w-5" />
-                Proceed to Checkout
-              </Button>
-              <p className="text-sm text-muted-foreground mt-3">
-                Secure payment powered by Stripe
-              </p>
+              {formData.selectedPlan && (
+                <p className="text-sm text-muted-foreground mb-4">
+                  Selected Plan: <span className="font-semibold text-primary capitalize">{formData.selectedPlan}</span>
+                </p>
+              )}
             </div>
-          )}
+            <Button
+              variant="hero"
+              size="lg"
+              onClick={handleCheckout}
+              className="w-full text-lg py-6"
+            >
+              <CreditCard className="mr-2 h-6 w-6" />
+              Complete Setup - Pay $79
+            </Button>
+            <p className="text-sm text-muted-foreground mt-3">
+              Secure payment powered by Stripe
+            </p>
+          </div>
         </div>
 
         <div className="text-sm text-muted-foreground">
