@@ -242,15 +242,8 @@ export const OnboardingForm = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 animate-gradient-shift relative overflow-hidden">
-      {/* Animated background effect */}
-      <div className="absolute inset-0 opacity-30">
-        <div className="absolute top-0 -left-4 w-96 h-96 bg-primary/20 rounded-full mix-blend-multiply filter blur-3xl animate-blob"></div>
-        <div className="absolute top-0 -right-4 w-96 h-96 bg-primary/10 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-2000"></div>
-        <div className="absolute -bottom-8 left-20 w-96 h-96 bg-primary/10 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-4000"></div>
-      </div>
-      
-      <div className="relative z-10">
+    <div className="min-h-screen bg-background">
+      <div className="relative">
       {currentStep < TOTAL_STEPS && (
         <div className="fixed top-0 left-0 right-0 bg-card/80 backdrop-blur-md z-50 border-b border-border">
           <div className="container max-w-4xl mx-auto px-4 py-4">
