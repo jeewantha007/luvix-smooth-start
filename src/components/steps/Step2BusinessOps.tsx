@@ -1,10 +1,11 @@
-import { Input } from "@/components/ui/input";
 import { FormField } from "../FormField";
 import { FormData } from "../OnboardingForm";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Clock } from "lucide-react";
+import { TimePicker } from "@/components/ui/time-picker";
+import { Input } from "@/components/ui/input";
 
 interface StepProps {
   formData: FormData;
@@ -36,20 +37,16 @@ export const Step2BusinessOps = ({ formData, updateFormData, errors = {} }: Step
           <h3 className="text-xl font-semibold mb-4">Business Hours & Timezone</h3>
           <div className="grid md:grid-cols-2 gap-4">
             <FormField label="Opening Time" required error={errors.businessHoursStart}>
-              <Input
-                type="time"
+              <TimePicker
                 value={formData.businessHoursStart}
-                onChange={(e) => updateFormData({ businessHoursStart: e.target.value })}
-                className="h-12 text-base"
+                onChange={(value) => updateFormData({ businessHoursStart: value })}
               />
             </FormField>
 
             <FormField label="Closing Time" required error={errors.businessHoursEnd}>
-              <Input
-                type="time"
+              <TimePicker
                 value={formData.businessHoursEnd}
-                onChange={(e) => updateFormData({ businessHoursEnd: e.target.value })}
-                className="h-12 text-base"
+                onChange={(value) => updateFormData({ businessHoursEnd: value })}
               />
             </FormField>
           </div>

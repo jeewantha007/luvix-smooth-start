@@ -4,6 +4,7 @@ import { FormData } from "../OnboardingForm";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Rocket } from "lucide-react";
+import { DateTimePicker } from "@/components/ui/date-time-picker";
 
 interface StepProps {
   formData: FormData;
@@ -40,11 +41,9 @@ export const Step8LaunchPlanning = ({ formData, updateFormData, errors = {} }: S
           description="Schedule a training session for your team (optional)"
         >
           <div className="space-y-4">
-            <Input
-              type="datetime-local"
+            <DateTimePicker
               value={formData.trainingDate}
-              onChange={(e) => updateFormData({ trainingDate: e.target.value })}
-              className="h-12 text-base"
+              onChange={(value) => updateFormData({ trainingDate: value })}
             />
             <Input
               placeholder="Number of attendees"
