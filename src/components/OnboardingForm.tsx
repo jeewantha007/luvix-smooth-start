@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import { useTheme } from "@/contexts/ThemeContext";
 import { Step0Welcome } from "./steps/Step0Welcome";
 import { Step1WhatsApp } from "./steps/Step1WhatsApp";
 import { Step2BusinessOps } from "./steps/Step2BusinessOps";
@@ -96,6 +98,7 @@ export interface FormData {
 const TOTAL_STEPS = 10;
 
 export const OnboardingForm = () => {
+  const { theme } = useTheme();
   const [currentStep, setCurrentStep] = useState(0);
   const [direction, setDirection] = useState<"forward" | "backward">("forward");
   const [formData, setFormData] = useState<FormData>({
@@ -248,9 +251,12 @@ export const OnboardingForm = () => {
         <div className="fixed top-0 left-0 right-0 bg-card/80 backdrop-blur-md z-50 border-b border-border">
           <div className="container max-w-4xl mx-auto px-4 py-4">
             <div className="flex items-center justify-between mb-2">
-              <h2 className="text-sm font-semibold text-muted-foreground">
-                Step {currentStep + 1} of {TOTAL_STEPS}
-              </h2>
+              <div className="flex items-center gap-2">
+                <h2 className="text-sm font-semibold text-muted-foreground">
+                  Step {currentStep + 1} of {TOTAL_STEPS}
+                </h2>
+                <ThemeToggle />
+              </div>
               <span className="text-sm font-medium text-primary">
                 {Math.round(progress)}% Complete
               </span>
