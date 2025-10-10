@@ -17,6 +17,7 @@ import { Step9FinalDetails } from "./steps/Step9FinalDetails";
 import { ThankYouStep } from "./steps/ThankYouStep";
 import confetti from "canvas-confetti";
 
+
 export interface FormData {
   // Step 0
   businessName: string;

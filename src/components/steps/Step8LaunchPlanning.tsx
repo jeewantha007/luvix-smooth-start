@@ -1,10 +1,7 @@
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { FormField } from "../FormField";
 import { FormData } from "../OnboardingForm";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
-import { FileCheck } from "lucide-react";
+import { FileCheck, Check } from "lucide-react";
 
 interface StepProps {
   formData: FormData;
@@ -12,7 +9,6 @@ interface StepProps {
   errors?: { [key: string]: string };
 }
 
-// Updated: Only two plans - Starter ($29) and Professional ($79)
 export const Step8LaunchPlanning = ({ formData, updateFormData, errors = {} }: StepProps) => {
   console.log("🧩 Step8 formData:", formData);
 
@@ -21,11 +17,28 @@ export const Step8LaunchPlanning = ({ formData, updateFormData, errors = {} }: S
       name: "Starter",
       price: "$29 / month",
       description: "Perfect for small businesses getting started",
+      features: [
+        "1,000 Monthly Responses",
+        "Basic CRM Integration",
+        "Analytics & Performance Tracking",
+        "WhatsApp Business API Setup",
+        "Email Support",
+        "AI Response Training",
+      ],
     },
     {
       name: "Professional",
       price: "$79 / month",
       description: "Ideal for growing businesses with higher volume",
+      features: [
+        "Everything in Starter Plan",
+        "Send Images, Documents & Media",
+        "Advanced Lead Qualification",
+        "Sales Pipeline Management",
+        "AI-Powered Follow-up Sequences",
+        "Multi-Channel Integration",
+        "Priority Support & Training",
+      ],
     },
   ];
 
@@ -93,20 +106,21 @@ export const Step8LaunchPlanning = ({ formData, updateFormData, errors = {} }: S
           <p className="text-sm text-muted-foreground mb-4">
             Choose the plan that best fits your business needs
           </p>
-          <div className="grid md:grid-cols-2 gap-4">
+
+          <div className="grid md:grid-cols-2 gap-6">
             {plans.map((plan) => (
               <div
                 key={plan.name}
-                className={`p-4 border rounded-lg cursor-pointer transition-all ${
+                className={`p-6 border rounded-xl cursor-pointer transition-all ${
                   formData.selectedPlan === plan.name
-                    ? "border-primary bg-primary/10"
+                    ? "border-primary bg-primary/10 shadow-md"
                     : "border-border hover:bg-secondary/50"
                 }`}
                 onClick={() => updateFormData({ selectedPlan: plan.name })}
               >
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between mb-3">
                   <div>
-                    <h4 className="font-semibold">{plan.name}</h4>
+                    <h4 className="font-semibold text-lg">{plan.name}</h4>
                     <p className="text-sm text-muted-foreground">{plan.price}</p>
                   </div>
                   {formData.selectedPlan === plan.name && (
@@ -115,12 +129,21 @@ export const Step8LaunchPlanning = ({ formData, updateFormData, errors = {} }: S
                     </div>
                   )}
                 </div>
-                <p className="text-sm text-muted-foreground mt-2">
-                  {plan.description}
-                </p>
+
+                <p className="text-sm text-muted-foreground mb-4">{plan.description}</p>
+
+                <ul className="space-y-2">
+                  {plan.features.map((feature, idx) => (
+                    <li key={idx} className="flex items-start space-x-2 text-sm">
+                      <Check className="h-4 w-4 text-primary mt-0.5" />
+                      <span>{feature}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
             ))}
           </div>
+
           {errors.selectedPlan && (
             <p className="text-sm text-destructive mt-2">{errors.selectedPlan}</p>
           )}
