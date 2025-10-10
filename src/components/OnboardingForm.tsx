@@ -189,22 +189,25 @@ export const OnboardingForm = () => {
   };
 
   const handleSubmit = async () => {
-    // Trigger confetti
-    confetti({
-      particleCount: 100,
-      spread: 70,
-      origin: { y: 0.6 },
-    });
-
-    // Move to thank you step
+    confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
     setDirection("forward");
     setCurrentStep(TOTAL_STEPS);
-
-    // Here you would send the form data via email
-    console.log("Form submitted:", formData);
-    
-    // TODO: Implement email submission
-    // You could use a service like EmailJS or a backend API
+  
+    try {
+      const res = await fetch("/api/send-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+  
+      if (!res.ok) {
+        throw new Error("Email failed");
+      }
+  
+      console.log("Email sent successfully!");
+    } catch (err) {
+      console.error("Failed to send email:", err);
+    }
   };
 
   const progress = ((currentStep) / TOTAL_STEPS) * 100;
