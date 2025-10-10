@@ -200,7 +200,8 @@ export const OnboardingForm = () => {
     // Clear errors when moving to next step
     setErrors({});
     
-    if (currentStep < TOTAL_STEPS) {
+    // Fix the condition: use TOTAL_STEPS - 1 instead of TOTAL_STEPS
+    if (currentStep < TOTAL_STEPS - 1) {
       setDirection("forward");
       setCurrentStep((prev) => prev + 1);
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -438,7 +439,7 @@ export const OnboardingForm = () => {
   const progress = ((currentStep) / TOTAL_STEPS) * 100;
 
   const renderStep = () => {
-    // Pass errors to step components
+    // Pass common props to step components
     const stepProps = {
       formData,
       updateFormData,
@@ -467,6 +468,7 @@ export const OnboardingForm = () => {
       case 8:
         return <Step8LaunchPlanning {...stepProps} key={key} />;
       case 9:
+        // Pass only the required props to Step9FinalDetails
         return <Step9FinalDetails {...stepProps} key={key} />;
       case 10:
         return <ThankYouStep formData={formData} key={key} />;

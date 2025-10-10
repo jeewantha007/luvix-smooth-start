@@ -9,9 +9,10 @@ interface ThankYouProps {
 
 export const ThankYouStep = ({ formData }: ThankYouProps) => {
   const handleCheckout = () => {
-    // TODO: Implement Stripe/PayPal checkout
-    console.log("Proceeding to checkout for $79 setup fee");
+    // Redirect user to Stripe Checkout
+    window.location.href = "https://buy.stripe.com/test_14A3cwaVP2Hpeugeu45Vu00";
   };
+  
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center">

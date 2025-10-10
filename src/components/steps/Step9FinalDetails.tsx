@@ -5,11 +5,13 @@ import { FormData } from "../OnboardingForm";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { FileCheck } from "lucide-react";
+// Removed Button import since we're not using explicit submit button
 
 interface StepProps {
   formData: FormData;
   updateFormData: (data: Partial<FormData>) => void;
   errors?: { [key: string]: string };
+  // Removed onSubmit prop since we're using the existing navigation button
 }
 
 export const Step9FinalDetails = ({ formData, updateFormData, errors = {} }: StepProps) => {
@@ -238,6 +240,8 @@ export const Step9FinalDetails = ({ formData, updateFormData, errors = {} }: Ste
             />
           </FormField>
         </div>
+
+        {/* Removed the explicit submit button since we're using the existing navigation button */}
       </div>
     </div>
   );
