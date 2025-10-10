@@ -9,9 +9,10 @@ import { AlertCircle } from "lucide-react";
 interface StepProps {
   formData: FormData;
   updateFormData: (data: Partial<FormData>) => void;
+  errors?: { [key: string]: string };
 }
 
-export const Step5Escalation = ({ formData, updateFormData }: StepProps) => {
+export const Step5Escalation = ({ formData, updateFormData, errors = {} }: StepProps) => {
   const escalationOptions = [
     "Customer requests to speak with a human",
     "Negative words detected (angry, frustrated, etc.)",
@@ -45,6 +46,7 @@ export const Step5Escalation = ({ formData, updateFormData }: StepProps) => {
         <FormField 
           label="AI Escalation Triggers" 
           required
+          error={errors.escalationRules}
           description="Select all conditions that should trigger a human takeover"
         >
           <div className="space-y-3">
@@ -92,7 +94,7 @@ export const Step5Escalation = ({ formData, updateFormData }: StepProps) => {
           </div>
         </FormField>
 
-        <FormField label="How should we notify you?" required>
+        <FormField label="How should we notify you?" required error={errors.escalationType}>
           <RadioGroup
             value={formData.escalationType}
             onValueChange={(value) => updateFormData({ escalationType: value })}
@@ -122,6 +124,7 @@ export const Step5Escalation = ({ formData, updateFormData }: StepProps) => {
         <FormField 
           label="Escalation Contact" 
           required
+          error={errors.escalationContact}
           description={
             formData.escalationType === "whatsapp" 
               ? "WhatsApp number for notifications"

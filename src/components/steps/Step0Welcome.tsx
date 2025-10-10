@@ -7,9 +7,10 @@ import { Sparkles } from "lucide-react";
 interface StepProps {
   formData: FormData;
   updateFormData: (data: Partial<FormData>) => void;
+  errors?: { [key: string]: string };
 }
 
-export const Step0Welcome = ({ formData, updateFormData }: StepProps) => {
+export const Step0Welcome = ({ formData, updateFormData, errors = {} }: StepProps) => {
   return (
     <div className="space-y-8">
       <div className="text-center space-y-4 mb-12">
@@ -29,7 +30,7 @@ export const Step0Welcome = ({ formData, updateFormData }: StepProps) => {
       </div>
 
       <div className="bg-card border border-border rounded-xl p-6 md:p-8 shadow-lg space-y-6">
-        <FormField label="Business Name" required>
+        <FormField label="Business Name" required error={errors.businessName}>
           <Input
             placeholder="Enter your business name"
             value={formData.businessName}
@@ -38,7 +39,7 @@ export const Step0Welcome = ({ formData, updateFormData }: StepProps) => {
           />
         </FormField>
 
-        <FormField label="Industry" required>
+        <FormField label="Industry" required error={errors.industry}>
           <Select
             value={formData.industry}
             onValueChange={(value) => updateFormData({ industry: value })}
@@ -60,7 +61,7 @@ export const Step0Welcome = ({ formData, updateFormData }: StepProps) => {
         </FormField>
 
         {formData.industry === "other" && (
-          <FormField label="Please specify your industry">
+          <FormField label="Please specify your industry" error={errors.industryOther}>
             <Input
               placeholder="Enter your industry"
               value={formData.industryOther}
@@ -84,7 +85,7 @@ export const Step0Welcome = ({ formData, updateFormData }: StepProps) => {
           <h3 className="text-xl font-semibold mb-6">Primary Contact</h3>
           
           <div className="space-y-6">
-            <FormField label="Full Name" required>
+            <FormField label="Full Name" required error={errors.contactName}>
               <Input
                 placeholder="John Doe"
                 value={formData.contactName}
@@ -93,7 +94,7 @@ export const Step0Welcome = ({ formData, updateFormData }: StepProps) => {
               />
             </FormField>
 
-            <FormField label="Email" required>
+            <FormField label="Email" required error={errors.contactEmail}>
               <Input
                 type="email"
                 placeholder="john@example.com"
@@ -103,7 +104,7 @@ export const Step0Welcome = ({ formData, updateFormData }: StepProps) => {
               />
             </FormField>
 
-            <FormField label="Phone Number" required>
+            <FormField label="Phone Number" required error={errors.contactPhone}>
               <Input
                 type="tel"
                 placeholder="+1 (555) 123-4567"

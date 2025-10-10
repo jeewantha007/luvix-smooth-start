@@ -9,9 +9,10 @@ import { Shield } from "lucide-react";
 interface StepProps {
   formData: FormData;
   updateFormData: (data: Partial<FormData>) => void;
+  errors?: { [key: string]: string };
 }
 
-export const Step7Compliance = ({ formData, updateFormData }: StepProps) => {
+export const Step7Compliance = ({ formData, updateFormData, errors = {} }: StepProps) => {
   const complianceOptions = [
     "None",
     "HIPAA (Healthcare)",
@@ -45,6 +46,7 @@ export const Step7Compliance = ({ formData, updateFormData }: StepProps) => {
         <FormField 
           label="Industry Compliance Requirements" 
           required
+          error={errors.compliance}
           description="Select all compliance standards that apply to your business"
         >
           <div className="space-y-3">
@@ -90,7 +92,7 @@ export const Step7Compliance = ({ formData, updateFormData }: StepProps) => {
           </div>
         </FormField>
 
-        <FormField label="Language Support" required description="What languages should the AI support?">
+        <FormField label="Language Support" required error={errors.language} description="What languages should the AI support?">
           <Select
             value={formData.language}
             onValueChange={(value) => updateFormData({ language: value })}
@@ -108,7 +110,7 @@ export const Step7Compliance = ({ formData, updateFormData }: StepProps) => {
         </FormField>
 
         {formData.language === "multi" && (
-          <FormField label="Specify Languages" description="List all languages you need">
+          <FormField label="Specify Languages" required error={errors.languageOther} description="List all languages you need">
             <Input
               placeholder="e.g., English, Spanish, Arabic, Hindi"
               value={formData.languageOther}
@@ -118,7 +120,7 @@ export const Step7Compliance = ({ formData, updateFormData }: StepProps) => {
           </FormField>
         )}
 
-        <FormField label="Data Storage Preference" required description="Where should your data be stored?">
+        <FormField label="Data Storage Preference" required error={errors.dataStorage} description="Where should your data be stored?">
           <Select
             value={formData.dataStorage}
             onValueChange={(value) => updateFormData({ dataStorage: value })}

@@ -95,6 +95,11 @@ export interface FormData {
   signatureDate: string;
 }
 
+// Define validation errors type
+interface ValidationErrors {
+  [key: string]: string;
+}
+
 const TOTAL_STEPS = 10;
 
 export const OnboardingForm = () => {
@@ -165,17 +170,35 @@ export const OnboardingForm = () => {
     signatureDate: "",
   });
 
+  // State for validation errors
+  const [errors, setErrors] = useState<ValidationErrors>({});
+
   const updateFormData = (data: Partial<FormData>) => {
     setFormData((prev) => ({ ...prev, ...data }));
+    
+    // Clear errors for fields that are being updated
+    const errorKeys = Object.keys(data);
+    if (errorKeys.length > 0) {
+      const newErrors = { ...errors };
+      errorKeys.forEach(key => {
+        delete newErrors[key];
+      });
+      setErrors(newErrors);
+    }
   };
 
   const handleNext = () => {
     console.log("handleNext called, currentStep:", currentStep);
     
     // Validate required fields before proceeding to next step
-    if (!validateStep(currentStep, formData)) {
+    const validationErrors = validateStep(currentStep, formData);
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
       return;
     }
+    
+    // Clear errors when moving to next step
+    setErrors({});
     
     if (currentStep < TOTAL_STEPS) {
       setDirection("forward");
@@ -196,196 +219,160 @@ export const OnboardingForm = () => {
   };
 
   // Validation function for each step
-  const validateStep = (step: number, data: FormData): boolean => {
+  const validateStep = (step: number, data: FormData): ValidationErrors => {
+    const errors: ValidationErrors = {};
+    
     switch (step) {
       case 0: // Step 0 - Welcome
         if (!data.businessName?.trim()) {
-          alert("Please enter your business name.");
-          return false;
+          errors.businessName = "Business name is required";
         }
         if (!data.industry) {
-          alert("Please select your industry.");
-          return false;
+          errors.industry = "Industry is required";
         }
         if (data.industry === "other" && !data.industryOther?.trim()) {
-          alert("Please specify your industry.");
-          return false;
+          errors.industryOther = "Please specify your industry";
         }
         if (!data.contactName?.trim()) {
-          alert("Please enter the primary contact name.");
-          return false;
+          errors.contactName = "Contact name is required";
         }
         if (!data.contactEmail?.trim()) {
-          alert("Please enter the primary contact email.");
-          return false;
+          errors.contactEmail = "Contact email is required";
         }
         if (!data.contactPhone?.trim()) {
-          alert("Please enter the primary contact phone number.");
-          return false;
+          errors.contactPhone = "Contact phone is required";
         }
-        return true;
+        return errors;
       
       case 1: // Step 1 - WhatsApp
         if (!data.whatsappNumber?.trim()) {
-          alert("Please enter your WhatsApp number.");
-          return false;
+          errors.whatsappNumber = "WhatsApp number is required";
         }
         if (!data.whatsappStatus) {
-          alert("Please select your current WhatsApp status.");
-          return false;
+          errors.whatsappStatus = "WhatsApp status is required";
         }
         if (!data.metaBusinessManager) {
-          alert("Please indicate if you have a Meta Business Manager account.");
-          return false;
+          errors.metaBusinessManager = "Meta Business Manager status is required";
         }
         if (data.metaBusinessManager === "have" && !data.metaBusinessManagerId?.trim()) {
-          alert("Please enter your Business Manager ID.");
-          return false;
+          errors.metaBusinessManagerId = "Business Manager ID is required";
         }
-        return true;
+        return errors;
       
       case 2: // Step 2 - Business Operations
         if (!data.businessHoursStart) {
-          alert("Please enter your business opening time.");
-          return false;
+          errors.businessHoursStart = "Opening time is required";
         }
         if (!data.businessHoursEnd) {
-          alert("Please enter your business closing time.");
-          return false;
+          errors.businessHoursEnd = "Closing time is required";
         }
         if (!data.timezone) {
-          alert("Please select your timezone.");
-          return false;
+          errors.timezone = "Timezone is required";
         }
         if (!data.messageVolume) {
-          alert("Please select your daily WhatsApp message volume.");
-          return false;
+          errors.messageVolume = "Message volume is required";
         }
-        return true;
+        return errors;
       
       case 3: // Step 3 - AI Training
         const filledQuestions = data.topQuestions?.filter(q => q.trim() !== "") || [];
         if (filledQuestions.length < 3) {
-          alert("Please enter at least 3 top questions your customers ask.");
-          return false;
+          errors.topQuestions = "Please enter at least 3 top questions your customers ask";
         }
         if (!data.businessDescription?.trim()) {
-          alert("Please describe your business.");
-          return false;
+          errors.businessDescription = "Business description is required";
         }
         if (!data.communicationStyle) {
-          alert("Please select your communication style.");
-          return false;
+          errors.communicationStyle = "Communication style is required";
         }
         if (!data.sharePricing) {
-          alert("Please indicate if AI can share pricing information.");
-          return false;
+          errors.sharePricing = "Pricing sharing preference is required";
         }
         if ((data.sharePricing === "yes-full" || data.sharePricing === "yes-starting") && 
             !data.pricingDetails?.trim()) {
-          alert("Please provide pricing details for the AI to share.");
-          return false;
+          errors.pricingDetails = "Pricing details are required";
         }
-        return true;
+        return errors;
       
       case 4: // Step 4 - Lead Management
         if (!data.leadInfo || data.leadInfo.length === 0) {
-          alert("Please select what information you need to qualify leads.");
-          return false;
+          errors.leadInfo = "Please select at least one lead information type";
         }
         if (data.leadInfo.includes("other") && !data.leadInfoCustom?.trim()) {
-          alert("Please specify other lead information needed.");
-          return false;
+          errors.leadInfoCustom = "Please specify other lead information";
         }
         if (!data.appointmentBooking) {
-          alert("Please indicate if you want to enable appointment booking.");
-          return false;
+          errors.appointmentBooking = "Appointment booking preference is required";
         }
         if (data.appointmentBooking === "yes" && !data.calendarEmail?.trim()) {
-          alert("Please enter the calendar email for appointments.");
-          return false;
+          errors.calendarEmail = "Calendar email is required for appointment booking";
         }
-        return true;
+        return errors;
       
       case 5: // Step 5 - Escalation
         if (!data.escalationRules || data.escalationRules.length === 0) {
-          alert("Please select when to escalate conversations.");
-          return false;
+          errors.escalationRules = "Please select at least one escalation trigger";
         }
         if (data.escalationRules.includes("After a specific number of messages") && 
             !data.escalationMessages?.trim()) {
-          alert("Please specify after how many messages to escalate.");
-          return false;
+          errors.escalationMessages = "Please specify the number of messages";
         }
         if (!data.escalationType) {
-          alert("Please select how we should notify you for escalations.");
-          return false;
+          errors.escalationType = "Escalation notification type is required";
         }
         if (!data.escalationContact?.trim()) {
-          alert("Please enter the escalation contact information.");
-          return false;
+          errors.escalationContact = "Escalation contact information is required";
         }
-        return true;
+        return errors;
       
       case 6: // Step 6 - Integrations
         if (!data.currentCRM) {
-          alert("Please select your current CRM system.");
-          return false;
+          errors.currentCRM = "Current CRM selection is required";
         }
         if (data.currentCRM === "other" && !data.crmOther?.trim()) {
-          alert("Please specify your CRM system.");
-          return false;
+          errors.crmOther = "Please specify your CRM system";
         }
-        return true;
+        return errors;
       
       case 7: // Step 7 - Compliance
         if (!data.compliance || data.compliance.length === 0) {
-          alert("Please select compliance requirements.");
-          return false;
+          errors.compliance = "Please select at least one compliance requirement";
         }
         if (data.compliance.includes("other") && !data.complianceOther?.trim()) {
-          alert("Please specify other compliance requirements.");
-          return false;
+          errors.complianceOther = "Please specify other compliance requirements";
         }
         if (!data.language) {
-          alert("Please select your primary language.");
-          return false;
+          errors.language = "Language selection is required";
         }
         if (data.language === "multi" && !data.languageOther?.trim()) {
-          alert("Please specify the languages you need.");
-          return false;
+          errors.languageOther = "Please specify the languages you need";
         }
         if (!data.dataStorage) {
-          alert("Please select your data storage preference.");
-          return false;
+          errors.dataStorage = "Data storage preference is required";
         }
-        return true;
+        return errors;
       
       case 8: // Step 8 - Launch Planning
         if (!data.goLiveDate) {
-          alert("Please select your preferred go-live date.");
-          return false;
+          errors.goLiveDate = "Go-live date is required";
         }
         if (!data.selectedPlan) {
-          alert("Please select a plan.");
-          return false;
+          errors.selectedPlan = "Plan selection is required";
         }
         if (data.trainingDate && !data.trainingAttendees) {
-          alert("Please enter the number of training attendees.");
-          return false;
+          errors.trainingAttendees = "Number of attendees is required when training date is set";
         }
         if (data.trainingAttendees && !data.trainingDate) {
-          alert("Please select a training date.");
-          return false;
+          errors.trainingDate = "Training date is required when number of attendees is set";
         }
-        return true;
+        return errors;
       
-      case 9: // Step 9 - Final Details (already handled in handleSubmit)
+      case 9: // Step 9 - Final Details (handled in handleSubmit)
         // This is handled in handleSubmit since it's the final step
-        return true;
+        return errors;
       
       default:
-        return true;
+        return errors;
     }
   };
 
@@ -393,27 +380,27 @@ export const OnboardingForm = () => {
     console.log("handleSubmit triggered");
     
     // Basic validation for required fields in the final step
-    if (currentStep === TOTAL_STEPS - 1) {
-      if (!formData.successLooks) {
-        alert("Please describe what success looks like for your business.");
-        return;
-      }
-      
-      if (!formData.agreementAuthority || !formData.agreementTerms || 
-          !formData.agreementWhatsApp || !formData.agreementAccuracy) {
-        alert("Please agree to all terms and conditions.");
-        return;
-      }
-      
-      if (!formData.fullName) {
-        alert("Please enter your full name for the signature.");
-        return;
-      }
-      
-      if (!formData.signatureDate) {
-        alert("Please enter the date for the signature.");
-        return;
-      }
+    const finalStepErrors: ValidationErrors = {};
+    if (!formData.successLooks?.trim()) {
+      finalStepErrors.successLooks = "Please describe what success looks like for your business";
+    }
+    
+    if (!formData.agreementAuthority || !formData.agreementTerms || 
+        !formData.agreementWhatsApp || !formData.agreementAccuracy) {
+      finalStepErrors.agreements = "Please agree to all terms and conditions";
+    }
+    
+    if (!formData.fullName?.trim()) {
+      finalStepErrors.fullName = "Full name is required for signature";
+    }
+    
+    if (!formData.signatureDate) {
+      finalStepErrors.signatureDate = "Signature date is required";
+    }
+    
+    if (Object.keys(finalStepErrors).length > 0) {
+      setErrors(finalStepErrors);
+      return;
     }
     
     try {
@@ -451,9 +438,11 @@ export const OnboardingForm = () => {
   const progress = ((currentStep) / TOTAL_STEPS) * 100;
 
   const renderStep = () => {
+    // Pass errors to step components
     const stepProps = {
       formData,
       updateFormData,
+      errors,
     };
     
     const key = `step-${currentStep}-${direction}`;

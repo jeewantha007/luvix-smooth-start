@@ -9,9 +9,10 @@ import { Users } from "lucide-react";
 interface StepProps {
   formData: FormData;
   updateFormData: (data: Partial<FormData>) => void;
+  errors?: { [key: string]: string };
 }
 
-export const Step4LeadManagement = ({ formData, updateFormData }: StepProps) => {
+export const Step4LeadManagement = ({ formData, updateFormData, errors = {} }: StepProps) => {
   const leadInfoOptions = [
     "Name",
     "Email",
@@ -64,6 +65,7 @@ export const Step4LeadManagement = ({ formData, updateFormData }: StepProps) => 
         <FormField 
           label="Information to Collect from Leads" 
           required
+          error={errors.leadInfo}
           description="Select all information the AI should gather from potential customers"
         >
           <div className="space-y-3">
@@ -136,7 +138,7 @@ export const Step4LeadManagement = ({ formData, updateFormData }: StepProps) => 
           </div>
         </FormField>
 
-        <FormField label="Appointment Booking" required description="Should the AI help customers book appointments?">
+        <FormField label="Appointment Booking" required error={errors.appointmentBooking} description="Should the AI help customers book appointments?">
           <RadioGroup
             value={formData.appointmentBooking}
             onValueChange={(value) => updateFormData({ appointmentBooking: value })}
@@ -158,7 +160,7 @@ export const Step4LeadManagement = ({ formData, updateFormData }: StepProps) => 
         </FormField>
 
         {formData.appointmentBooking === "yes" && (
-          <FormField label="Calendar Email" description="Google Calendar or Outlook email">
+          <FormField label="Calendar Email" required error={errors.calendarEmail} description="Google Calendar or Outlook email">
             <Input
               type="email"
               placeholder="calendar@example.com"

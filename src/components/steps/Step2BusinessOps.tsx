@@ -9,9 +9,10 @@ import { Clock } from "lucide-react";
 interface StepProps {
   formData: FormData;
   updateFormData: (data: Partial<FormData>) => void;
+  errors?: { [key: string]: string };
 }
 
-export const Step2BusinessOps = ({ formData, updateFormData }: StepProps) => {
+export const Step2BusinessOps = ({ formData, updateFormData, errors = {} }: StepProps) => {
   const updateTeamMember = (index: number, field: "name" | "email", value: string) => {
     const newTeamMembers = [...formData.teamMembers];
     newTeamMembers[index] = { ...newTeamMembers[index], [field]: value };
@@ -34,7 +35,7 @@ export const Step2BusinessOps = ({ formData, updateFormData }: StepProps) => {
         <div>
           <h3 className="text-xl font-semibold mb-4">Business Hours & Timezone</h3>
           <div className="grid md:grid-cols-2 gap-4">
-            <FormField label="Opening Time" required>
+            <FormField label="Opening Time" required error={errors.businessHoursStart}>
               <Input
                 type="time"
                 value={formData.businessHoursStart}
@@ -43,7 +44,7 @@ export const Step2BusinessOps = ({ formData, updateFormData }: StepProps) => {
               />
             </FormField>
 
-            <FormField label="Closing Time" required>
+            <FormField label="Closing Time" required error={errors.businessHoursEnd}>
               <Input
                 type="time"
                 value={formData.businessHoursEnd}
@@ -54,7 +55,7 @@ export const Step2BusinessOps = ({ formData, updateFormData }: StepProps) => {
           </div>
 
           <div className="mt-4">
-            <FormField label="Timezone" required>
+            <FormField label="Timezone" required error={errors.timezone}>
               <Select
                 value={formData.timezone}
                 onValueChange={(value) => updateFormData({ timezone: value })}
@@ -77,7 +78,7 @@ export const Step2BusinessOps = ({ formData, updateFormData }: StepProps) => {
           </div>
         </div>
 
-        <FormField label="Daily WhatsApp Message Volume" required description="Approximate number of messages you receive per day">
+        <FormField label="Daily WhatsApp Message Volume" required error={errors.messageVolume} description="Approximate number of messages you receive per day">
           <RadioGroup
             value={formData.messageVolume}
             onValueChange={(value) => updateFormData({ messageVolume: value })}

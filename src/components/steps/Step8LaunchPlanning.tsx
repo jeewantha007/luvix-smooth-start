@@ -8,9 +8,10 @@ import { Rocket } from "lucide-react";
 interface StepProps {
   formData: FormData;
   updateFormData: (data: Partial<FormData>) => void;
+  errors?: { [key: string]: string };
 }
 
-export const Step8LaunchPlanning = ({ formData, updateFormData }: StepProps) => {
+export const Step8LaunchPlanning = ({ formData, updateFormData, errors = {} }: StepProps) => {
   return (
     <div className="space-y-8">
       <div className="text-center space-y-4 mb-8">
@@ -24,7 +25,7 @@ export const Step8LaunchPlanning = ({ formData, updateFormData }: StepProps) => 
       </div>
 
       <div className="bg-card border border-border rounded-xl p-6 md:p-8 shadow-lg space-y-6">
-        <FormField label="Preferred Go-Live Date" required description="When would you like to launch LUVIX?">
+        <FormField label="Preferred Go-Live Date" required error={errors.goLiveDate} description="When would you like to launch LUVIX?">
           <Input
             type="date"
             value={formData.goLiveDate}
@@ -56,7 +57,7 @@ export const Step8LaunchPlanning = ({ formData, updateFormData }: StepProps) => 
           </div>
         </FormField>
 
-        <FormField label="Select Your Plan" required description="Choose the LUVIX plan that fits your needs">
+        <FormField label="Select Your Plan" required error={errors.selectedPlan} description="Choose the LUVIX plan that fits your needs">
           <RadioGroup
             value={formData.selectedPlan}
             onValueChange={(value) => updateFormData({ selectedPlan: value })}

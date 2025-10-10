@@ -8,9 +8,10 @@ import { MessageSquare } from "lucide-react";
 interface StepProps {
   formData: FormData;
   updateFormData: (data: Partial<FormData>) => void;
+  errors?: { [key: string]: string };
 }
 
-export const Step1WhatsApp = ({ formData, updateFormData }: StepProps) => {
+export const Step1WhatsApp = ({ formData, updateFormData, errors = {} }: StepProps) => {
   return (
     <div className="space-y-8">
       <div className="text-center space-y-4 mb-8">
@@ -24,7 +25,7 @@ export const Step1WhatsApp = ({ formData, updateFormData }: StepProps) => {
       </div>
 
       <div className="bg-card border border-border rounded-xl p-6 md:p-8 shadow-lg space-y-6">
-        <FormField label="WhatsApp Number" required>
+        <FormField label="WhatsApp Number" required error={errors.whatsappNumber}>
           <Input
             type="tel"
             placeholder="+1 (555) 123-4567"
@@ -34,7 +35,7 @@ export const Step1WhatsApp = ({ formData, updateFormData }: StepProps) => {
           />
         </FormField>
 
-        <FormField label="Current WhatsApp Status" required>
+        <FormField label="Current WhatsApp Status" required error={errors.whatsappStatus}>
           <RadioGroup
             value={formData.whatsappStatus}
             onValueChange={(value) => updateFormData({ whatsappStatus: value })}
@@ -70,6 +71,7 @@ export const Step1WhatsApp = ({ formData, updateFormData }: StepProps) => {
         <FormField 
           label="Meta Business Manager Account" 
           required
+          error={errors.metaBusinessManager}
           description="This is required for WhatsApp Business API integration"
         >
           <RadioGroup
@@ -93,7 +95,7 @@ export const Step1WhatsApp = ({ formData, updateFormData }: StepProps) => {
         </FormField>
 
         {formData.metaBusinessManager === "have" && (
-          <FormField label="Business Manager ID" description="Enter your Meta Business Manager ID">
+          <FormField label="Business Manager ID" error={errors.metaBusinessManagerId} description="Enter your Meta Business Manager ID">
             <Input
               placeholder="123456789012345"
               value={formData.metaBusinessManagerId}

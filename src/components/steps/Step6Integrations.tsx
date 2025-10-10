@@ -9,9 +9,10 @@ import { Plug } from "lucide-react";
 interface StepProps {
   formData: FormData;
   updateFormData: (data: Partial<FormData>) => void;
+  errors?: { [key: string]: string };
 }
 
-export const Step6Integrations = ({ formData, updateFormData }: StepProps) => {
+export const Step6Integrations = ({ formData, updateFormData, errors = {} }: StepProps) => {
   const integrationOptions = [
     "Google Calendar",
     "Shopify",
@@ -41,7 +42,7 @@ export const Step6Integrations = ({ formData, updateFormData }: StepProps) => {
       </div>
 
       <div className="bg-card border border-border rounded-xl p-6 md:p-8 shadow-lg space-y-6">
-        <FormField label="Current CRM" required description="What CRM system are you currently using?">
+        <FormField label="Current CRM" required error={errors.currentCRM} description="What CRM system are you currently using?">
           <Select
             value={formData.currentCRM}
             onValueChange={(value) => updateFormData({ currentCRM: value })}
@@ -61,7 +62,7 @@ export const Step6Integrations = ({ formData, updateFormData }: StepProps) => {
         </FormField>
 
         {formData.currentCRM === "other" && (
-          <FormField label="Please specify your CRM">
+          <FormField label="Please specify your CRM" required error={errors.crmOther}>
             <Input
               placeholder="Enter your CRM name"
               value={formData.crmOther}

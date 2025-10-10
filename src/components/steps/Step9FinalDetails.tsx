@@ -9,9 +9,10 @@ import { FileCheck } from "lucide-react";
 interface StepProps {
   formData: FormData;
   updateFormData: (data: Partial<FormData>) => void;
+  errors?: { [key: string]: string };
 }
 
-export const Step9FinalDetails = ({ formData, updateFormData }: StepProps) => {
+export const Step9FinalDetails = ({ formData, updateFormData, errors = {} }: StepProps) => {
   const referralOptions = [
     "Google Search",
     "LinkedIn",
@@ -45,6 +46,7 @@ export const Step9FinalDetails = ({ formData, updateFormData }: StepProps) => {
         <FormField 
           label="What Does Success Look Like?" 
           required
+          error={errors.successLooks}
           description="Describe your goals and expectations for LUVIX"
         >
           <Textarea
@@ -209,11 +211,15 @@ export const Step9FinalDetails = ({ formData, updateFormData }: StepProps) => {
                 I confirm that all information provided in this form is accurate *
               </Label>
             </div>
+            
+            {errors.agreements && (
+              <p className="text-sm text-destructive">{errors.agreements}</p>
+            )}
           </div>
         </div>
 
         <div className="grid md:grid-cols-2 gap-4 pt-4">
-          <FormField label="Full Name (Signature)" required>
+          <FormField label="Full Name (Signature)" required error={errors.fullName}>
             <Input
               placeholder="John Doe"
               value={formData.fullName}
@@ -222,7 +228,7 @@ export const Step9FinalDetails = ({ formData, updateFormData }: StepProps) => {
             />
           </FormField>
 
-          <FormField label="Date" required>
+          <FormField label="Date" required error={errors.signatureDate}>
             <Input
               type="date"
               value={formData.signatureDate}

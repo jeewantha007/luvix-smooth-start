@@ -4,6 +4,7 @@ import { CheckCircle2, Mail, CreditCard } from "lucide-react";
 
 interface ThankYouProps {
   formData: FormData;
+  errors?: { [key: string]: string };
 }
 
 export const ThankYouStep = ({ formData }: ThankYouProps) => {

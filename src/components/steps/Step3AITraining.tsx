@@ -9,9 +9,10 @@ import { Brain } from "lucide-react";
 interface StepProps {
   formData: FormData;
   updateFormData: (data: Partial<FormData>) => void;
+  errors?: { [key: string]: string };
 }
 
-export const Step3AITraining = ({ formData, updateFormData }: StepProps) => {
+export const Step3AITraining = ({ formData, updateFormData, errors = {} }: StepProps) => {
   const updateQuestion = (index: number, value: string) => {
     const newQuestions = [...formData.topQuestions];
     newQuestions[index] = value;
@@ -38,7 +39,7 @@ export const Step3AITraining = ({ formData, updateFormData }: StepProps) => {
           </p>
           <div className="space-y-4">
             {formData.topQuestions.map((question, index) => (
-              <FormField key={index} label={`Question ${index + 1}`} required={index === 0}>
+              <FormField key={index} label={`Question ${index + 1}`} required={index === 0} error={index === 0 ? errors.topQuestions : undefined}>
                 <Input
                   placeholder={`e.g., What are your business hours?`}
                   value={question}
@@ -53,6 +54,7 @@ export const Step3AITraining = ({ formData, updateFormData }: StepProps) => {
         <FormField 
           label="What Does Your Business Do?" 
           required
+          error={errors.businessDescription}
           description="Provide a clear description of your products or services"
         >
           <Textarea
@@ -63,7 +65,7 @@ export const Step3AITraining = ({ formData, updateFormData }: StepProps) => {
           />
         </FormField>
 
-        <FormField label="Communication Style" required description="How should the AI communicate with your customers?">
+        <FormField label="Communication Style" required error={errors.communicationStyle} description="How should the AI communicate with your customers?">
           <RadioGroup
             value={formData.communicationStyle}
             onValueChange={(value) => updateFormData({ communicationStyle: value })}
@@ -93,7 +95,7 @@ export const Step3AITraining = ({ formData, updateFormData }: StepProps) => {
           </RadioGroup>
         </FormField>
 
-        <FormField label="Can AI Share Pricing?" required>
+        <FormField label="Can AI Share Pricing?" required error={errors.sharePricing}>
           <RadioGroup
             value={formData.sharePricing}
             onValueChange={(value) => updateFormData({ sharePricing: value })}
@@ -121,7 +123,7 @@ export const Step3AITraining = ({ formData, updateFormData }: StepProps) => {
         </FormField>
 
         {(formData.sharePricing === "yes-full" || formData.sharePricing === "yes-starting") && (
-          <FormField label="Pricing Information" description="Provide pricing details for the AI to share">
+          <FormField label="Pricing Information" required error={errors.pricingDetails} description="Provide pricing details for the AI to share">
             <Textarea
               placeholder="Basic plan: $49/month&#10;Professional plan: $99/month&#10;Enterprise: Contact us"
               value={formData.pricingDetails}
