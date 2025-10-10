@@ -170,12 +170,13 @@ export const OnboardingForm = () => {
   };
 
   const handleNext = () => {
+    console.log("handleNext called, currentStep:", currentStep); // 🔹 log step
     if (currentStep < TOTAL_STEPS) {
       setDirection("forward");
       setCurrentStep((prev) => prev + 1);
       window.scrollTo({ top: 0, behavior: "smooth" });
     } else if (currentStep === TOTAL_STEPS - 1) {
-      // Submit form
+      console.log("Reached last step, calling handleSubmit"); // 🔹 log
       handleSubmit();
     }
   };
@@ -187,29 +188,38 @@ export const OnboardingForm = () => {
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
-
   const handleSubmit = async () => {
-    confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-    setDirection("forward");
-    setCurrentStep(TOTAL_STEPS);
-  
+    console.log("handleSubmit triggered"); // 🔹 log
     try {
-      const res = await fetch("/api/send-email", {
+      // Trigger confetti
+      confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+  
+      console.log("Sending form data:", formData); // 🔹 log
+  
+      // Send form data to backend
+      const res = await fetch("/api/send-form", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
   
-      if (!res.ok) {
-        throw new Error("Email failed");
-      }
+      console.log("Fetch response received"); // 🔹 log
   
-      console.log("Email sent successfully!");
+      const data = await res.json();
+      console.log("Response data:", data); // 🔹 log
+  
+      if (!data.success) throw new Error(data.error || "Email failed");
+  
+      // Move to thank you step
+      setDirection("forward");
+      setCurrentStep(TOTAL_STEPS);
+      console.log("Form submitted successfully, moving to Thank You step"); // 🔹 log
     } catch (err) {
-      console.error("Failed to send email:", err);
+      console.error("Error in handleSubmit:", err); // 🔹 log
+      alert("Failed to submit form. Please try again.");
     }
   };
-
+  
   const progress = ((currentStep) / TOTAL_STEPS) * 100;
 
   const renderStep = () => {
