@@ -7,13 +7,18 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { generatePDFBuffer } from "./pdfTemplate.js";
 
+
 const require = createRequire(import.meta.url);
 const cors = require("cors");
 
 dotenv.config();
 
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: "https://subscription.luvix.live",
+  methods: ["GET", "POST"],
+  credentials: true,
+}));
 app.use(express.json());
 
 const __filename = fileURLToPath(import.meta.url);

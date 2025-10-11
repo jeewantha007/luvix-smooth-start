@@ -1,0 +1,62 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches:
+      - main  # Change if your default branch is different
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1️⃣ Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # 2️⃣ Set up Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      # 3️⃣ Install dependencies
+      - name: Install dependencies
+        run: npm install
+
+      # 4️⃣ Build React frontend
+      - name: Build frontend
+        run: npm run build
+
+      # 5️⃣ Copy files to EC2 via SSH
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: 22
+          script: |
+            set -e
+            echo "🚀 Pulling latest code..."
+            cd ${{ secrets.EC2_PATH }}
+            git reset --hard
+            git clean -fd
+            git pull origin main
+
+            echo "📦 Installing backend dependencies..."
+            npm install
+
+            echo "🛠️ Building frontend (if needed)..."
+            npm run build
+
+            echo "🔄 Restarting backend..."
+            # Kill old Node process if running
+            if pgrep -f "server.js" > /dev/null; then
+              pkill -f "server.js"
+            fi
+
+            # Start backend in background
+            nohup npm start > server.log 2>&1 &
+            
+            echo "✅ Deployment finished!"
