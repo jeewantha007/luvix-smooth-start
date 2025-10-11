@@ -28,7 +28,23 @@ jobs:
       - name: Build frontend
         run: npm run build
 
-      # 5️⃣ Copy files to EC2 via SSH
+      # 5️⃣ Debug SSH connection
+      - name: Debug SSH
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: 22
+          script: |
+            echo "🧪 Debug SSH connection"
+            whoami
+            pwd
+            ls -la
+            ssh -V || echo "SSH version command failed"
+            echo "✅ SSH seems to be working"
+
+      # 6️⃣ Copy files to EC2 via SSH with debug
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v0.1.7
         with:
@@ -37,9 +53,11 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           port: 22
           script: |
-            set -e
+            set -xe  # <-- enables shell debug mode, prints each command
             echo "🚀 Pulling latest code..."
             cd ${{ secrets.EC2_PATH }}
+            pwd
+            ls -la
             git reset --hard
             git clean -fd
             git pull origin main
@@ -51,12 +69,9 @@ jobs:
             npm run build
 
             echo "🔄 Restarting backend..."
-            # Kill old Node process if running
             if pgrep -f "server.js" > /dev/null; then
               pkill -f "server.js"
             fi
 
-            # Start backend in background
             nohup npm start > server.log 2>&1 &
-            
             echo "✅ Deployment finished!"
