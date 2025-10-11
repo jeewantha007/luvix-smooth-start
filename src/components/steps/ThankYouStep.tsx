@@ -1,6 +1,7 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { FormData } from "../OnboardingForm";
-import { CheckCircle2, Mail, CreditCard } from "lucide-react";
+import { CheckCircle2, Mail, CreditCard, Loader2 } from "lucide-react";
 
 interface ThankYouProps {
   formData: FormData;
@@ -8,9 +9,13 @@ interface ThankYouProps {
 }
 
 export const ThankYouStep = ({ formData }: ThankYouProps) => {
+  const [isProcessing, setIsProcessing] = useState(false);
+
   const handleCheckout = () => {
+    setIsProcessing(true);
     // Redirect user to Stripe Checkout
     window.location.href = "https://buy.stripe.com/test_14A3cwaVP2Hpeugeu45Vu00";
+    // Note: setIsProcessing(false) is not needed since we're redirecting
   };
   
 
@@ -83,10 +88,20 @@ export const ThankYouStep = ({ formData }: ThankYouProps) => {
               variant="hero"
               size="lg"
               onClick={handleCheckout}
+              disabled={isProcessing}
               className="w-full text-lg py-6"
             >
-              <CreditCard className="mr-2 h-6 w-6" />
-              Complete Setup - Pay $79
+              {isProcessing ? (
+                <>
+                  <Loader2 className="mr-2 h-6 w-6 animate-spin" />
+                  Redirecting to Checkout...
+                </>
+              ) : (
+                <>
+                  <CreditCard className="mr-2 h-6 w-6" />
+                  Complete Setup - Pay $79
+                </>
+              )}
             </Button>
             <p className="text-sm text-muted-foreground mt-3">
               Secure payment powered by Stripe
