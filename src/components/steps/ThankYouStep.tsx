@@ -14,7 +14,7 @@ export const ThankYouStep = ({ formData }: ThankYouProps) => {
   const handleCheckout = () => {
     setIsProcessing(true);
     // Redirect user to Stripe Checkout
-    window.location.href = "https://buy.stripe.com/test_14A3cwaVP2Hpeugeu45Vu00";
+    window.location.href = "https://buy.stripe.com/5kQ5kD8Q0fE4cnca5qabK01";
     // Note: setIsProcessing(false) is not needed since we're redirecting
   };
   
