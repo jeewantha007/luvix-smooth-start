@@ -82,16 +82,16 @@ app.post("/api/send-form", async (req, res) => {
     });
 
     // 2️⃣ Send Thank You email to Client
-    const personalizedThankYouHTML = thankYouHTML
-      .replace("{{name}}", formData.contactName)
-      .replace("{{business}}", formData.businessName);
+    // const personalizedThankYouHTML = thankYouHTML
+    //   .replace("{{name}}", formData.contactName)
+    //   .replace("{{business}}", formData.businessName);
 
-    await transporter.sendMail({
-      from: `"${process.env.FROM_NAME}" <${process.env.EMAIL_USER}>`,
-      to: formData.contactEmail,
-      subject: `Thanks for submitting your onboarding form, ${formData.contactName}!`,
-      html: personalizedThankYouHTML,
-    });
+    // await transporter.sendMail({
+    //   from: `"${process.env.FROM_NAME}" <${process.env.EMAIL_USER}>`,
+    //   to: formData.contactEmail,
+    //   subject: `Thanks for submitting your onboarding form, ${formData.contactName}!`,
+    //   html: personalizedThankYouHTML,
+    // });
 
     res.status(200).json({ 
       success: true, 
