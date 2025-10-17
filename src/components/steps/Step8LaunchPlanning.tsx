@@ -15,7 +15,7 @@ export const Step8LaunchPlanning = ({ formData, updateFormData, errors = {} }: S
   const plans = [
     {
       name: "Starter",
-      price: "$29 / month",
+      price: "$49 / month",
       description: "Perfect for small businesses getting started",
       features: [
         "1,000 Monthly Responses",
@@ -28,7 +28,7 @@ export const Step8LaunchPlanning = ({ formData, updateFormData, errors = {} }: S
     },
     {
       name: "Professional",
-      price: "$79 / month",
+      price: "$119 / month",
       description: "Ideal for growing businesses with higher volume",
       features: [
         "Everything in Starter Plan",

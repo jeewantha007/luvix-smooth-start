@@ -75,7 +75,7 @@ export const ThankYouStep = ({ formData }: ThankYouProps) => {
             <div className="bg-gradient-to-br from-primary/10 to-primary/5 border-2 border-primary rounded-xl p-8 mb-6">
               <h4 className="font-semibold text-2xl mb-3 text-foreground">Initial Setup Fee</h4>
               <div className="flex items-center justify-center gap-2 mb-4">
-                <span className="text-5xl font-bold text-primary">$79</span>
+                <span className="text-5xl font-bold text-primary">$139</span>
                 <span className="text-muted-foreground text-lg">one-time</span>
               </div>
               {formData.selectedPlan && (
