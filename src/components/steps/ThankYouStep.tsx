@@ -17,7 +17,6 @@ export const ThankYouStep = ({ formData }: ThankYouProps) => {
     window.location.href = "https://buy.stripe.com/5kQ5kD8Q0fE4cnca5qabK01";
     // Note: setIsProcessing(false) is not needed since we're redirecting
   };
-  
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center">
@@ -42,7 +41,9 @@ export const ThankYouStep = ({ formData }: ThankYouProps) => {
               <h3 className="font-semibold text-lg mb-2">Confirmation Sent</h3>
               <p className="text-muted-foreground">
                 We've sent a copy of your agreement to{" "}
-                <span className="font-medium text-foreground">{formData.contactEmail}</span>
+                <span className="font-medium text-foreground">
+                  {formData.contactEmail}
+                </span>
               </p>
             </div>
           </div>
@@ -54,33 +55,51 @@ export const ThankYouStep = ({ formData }: ThankYouProps) => {
                 <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary font-semibold text-sm flex-shrink-0">
                   1
                 </span>
-                <span>Our team will review your information and reach out within 24 hours</span>
+                <span>
+                  Our team will review your information and reach out within 24
+                  hours
+                </span>
               </li>
               <li className="flex items-start gap-3">
                 <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary font-semibold text-sm flex-shrink-0">
                   2
                 </span>
-                <span>We'll schedule your training session for {formData.trainingDate ? new Date(formData.trainingDate).toLocaleDateString() : "a date of your choice"}</span>
+                <span>
+                  We'll schedule your training session for{" "}
+                  {formData.trainingDate
+                    ? new Date(formData.trainingDate).toLocaleDateString()
+                    : "a date of your choice"}
+                </span>
               </li>
               <li className="flex items-start gap-3">
                 <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary font-semibold text-sm flex-shrink-0">
                   3
                 </span>
-                <span>Your LUVIX system will be ready to go live on {formData.goLiveDate ? new Date(formData.goLiveDate).toLocaleDateString() : "your preferred date"}</span>
+                <span>
+                  Your LUVIX system will be ready to go live on{" "}
+                  {formData.goLiveDate
+                    ? new Date(formData.goLiveDate).toLocaleDateString()
+                    : "your preferred date"}
+                </span>
               </li>
             </ul>
           </div>
 
           <div className="pt-6 border-t border-border">
             <div className="bg-gradient-to-br from-primary/10 to-primary/5 border-2 border-primary rounded-xl p-8 mb-6">
-              <h4 className="font-semibold text-2xl mb-3 text-foreground">Initial Setup Fee</h4>
+              <h4 className="font-semibold text-2xl mb-3 text-foreground">
+                Initial Setup Fee
+              </h4>
               <div className="flex items-center justify-center gap-2 mb-4">
                 <span className="text-5xl font-bold text-primary">$139</span>
                 <span className="text-muted-foreground text-lg">one-time</span>
               </div>
               {formData.selectedPlan && (
                 <p className="text-sm text-muted-foreground mb-4">
-                  Selected Plan: <span className="font-semibold text-primary capitalize">{formData.selectedPlan}</span>
+                  Selected Plan:{" "}
+                  <span className="font-semibold text-primary capitalize">
+                    {formData.selectedPlan}
+                  </span>
                 </p>
               )}
             </div>
@@ -99,7 +118,7 @@ export const ThankYouStep = ({ formData }: ThankYouProps) => {
               ) : (
                 <>
                   <CreditCard className="mr-2 h-6 w-6" />
-                  Complete Setup - Pay $79
+                  Complete Setup - Pay $139
                 </>
               )}
             </Button>
@@ -112,17 +131,17 @@ export const ThankYouStep = ({ formData }: ThankYouProps) => {
         <div className="text-sm text-muted-foreground">
           <p>Questions? Contact us at</p>
           <a
-            href="mailto:support@luvix.com"
+            href="luvixautomation@gmail.com"
             className="text-primary hover:underline font-medium"
           >
-            support@luvix.com
+            luvixautomation@gmail.com
           </a>
           {" or "}
           <a
             href="tel:+15551234567"
             className="text-primary hover:underline font-medium"
           >
-            +1 (555) 123-4567
+            +(44) 74 5929 4880
           </a>
         </div>
       </div>
