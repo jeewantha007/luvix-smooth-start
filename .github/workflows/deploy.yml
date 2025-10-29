@@ -28,21 +28,29 @@ jobs:
           script: |
             set -xe
             echo "🚀 Deploying to EC2..."
-            cd ${{ secrets.EC2_PATH }}
-            
-            # Pull latest code
-            git reset --hard
-            git clean -fd
-            git pull origin main
 
-            # Install backend dependencies
+            # Ensure project directory exists
+            mkdir -p ${{ secrets.EC2_PATH }}
+            cd ${{ secrets.EC2_PATH }}
+
+            # First‑time clone or pull
+            if [ ! -d ".git" ]; then
+              echo "First‑time setup: cloning repo..."
+              git clone https://github.com/jeewantha007/luvix-smooth-start.git .
+            else
+              git reset --hard
+              git clean -fd
+              git pull origin main
+            fi
+
+            # Install dependencies
             npm install
 
             # Build frontend
             npm run build
 
             # Start or reload server with PM2
-            pm2 describe luvix-server || pm2 start server.js --name luvix-server --log ~/luvix-smooth-start/server.log --error ~/luvix-smooth-start/server-error.log
+            pm2 describe luvix-server || pm2 start server.js --name luvix-server --log /home/ubuntu/luvix-smooth-start/server.log --error /home/ubuntu/luvix-smooth-start/server-error.log
             pm2 reload luvix-server
 
             echo "✅ Deployment finished!"
