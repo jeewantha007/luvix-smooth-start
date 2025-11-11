@@ -79,7 +79,7 @@ app.get("/api/users", async (req, res) => {
     // Fetch all response balances
     const { data: responseBalances, error: responseError } = await supabase
       .from("response_balance")
-      .select("user_id, remaining");
+      .select("user_id, total");
 
     if (responseError) {
       console.error("Error fetching response balances:", responseError);
@@ -94,7 +94,7 @@ app.get("/api/users", async (req, res) => {
 
     const responseBalanceMap = new Map();
     (responseBalances || []).forEach(balance => {
-      responseBalanceMap.set(balance.user_id, balance.remaining);
+      responseBalanceMap.set(balance.user_id, balance.total);
     });
 
     // Transform the response to include user data with balances
@@ -118,6 +118,120 @@ app.get("/api/users", async (req, res) => {
     });
   } catch (err) {
     console.error("Error in /api/users:", err);
+    res.status(500).json({ 
+      success: false, 
+      error: err.message 
+    });
+  }
+});
+
+// POST endpoint to register a new user with token and response balances
+app.post("/api/users/register", async (req, res) => {
+  try {
+    if (!supabase) {
+      return res.status(500).json({ 
+        success: false, 
+        error: "Supabase client not configured. Please check your environment variables." 
+      });
+    }
+
+    const { email, password, total_tokens, total_responses } = req.body;
+
+    // Validate required fields
+    if (!email || !password) {
+      return res.status(400).json({ 
+        success: false, 
+        error: "Email and password are required" 
+      });
+    }
+
+    if (total_tokens === undefined || total_responses === undefined) {
+      return res.status(400).json({ 
+        success: false, 
+        error: "total_tokens and total_responses are required" 
+      });
+    }
+
+    // Convert to numbers
+    const tokens = parseInt(total_tokens);
+    const responses = parseInt(total_responses);
+
+    if (isNaN(tokens) || isNaN(responses) || tokens < 0 || responses < 0) {
+      return res.status(400).json({ 
+        success: false, 
+        error: "total_tokens and total_responses must be valid positive numbers" 
+      });
+    }
+
+    // Create user in Supabase Auth using Admin API
+    const { data: userData, error: createError } = await supabase.auth.admin.createUser({
+      email: email,
+      password: password,
+      email_confirm: true, // Auto-confirm email
+    });
+
+    if (createError) {
+      console.error("Error creating user:", createError);
+      return res.status(400).json({ 
+        success: false, 
+        error: createError.message 
+      });
+    }
+
+    const userId = userData.user.id;
+
+    // Insert token balance
+    // Note: client_id is typically the same as user_id in Supabase
+    const { error: tokenError } = await supabase
+      .from("token_balance")
+      .insert({
+        user_id: userId,
+        client_id: userId, // Add client_id (assuming it's the same as user_id)
+        total_tokens: tokens, // Required column
+        remaining_tokens: tokens, // Initially same as total_tokens
+      });
+
+    if (tokenError) {
+      console.error("Error creating token balance:", tokenError);
+      // If token balance fails, try to delete the user to maintain consistency
+      await supabase.auth.admin.deleteUser(userId);
+      return res.status(500).json({ 
+        success: false, 
+        error: `Failed to create token balance: ${tokenError.message}` 
+      });
+    }
+
+    // Insert response balance
+    const { error: responseError } = await supabase
+      .from("response_balance")
+      .insert({
+        user_id: userId,
+        total: responses, // Changed from 'remaining' to 'total'
+      });
+
+    if (responseError) {
+      console.error("Error creating response balance:", responseError);
+      // If response balance fails, clean up: delete token balance and user
+      await supabase.from("token_balance").delete().eq("user_id", userId);
+      await supabase.auth.admin.deleteUser(userId);
+      return res.status(500).json({ 
+        success: false, 
+        error: `Failed to create response balance: ${responseError.message}` 
+      });
+    }
+
+    res.status(201).json({ 
+      success: true, 
+      message: "User registered successfully",
+      user: {
+        id: userId,
+        email: userData.user.email,
+        total_tokens: tokens,
+        total_responses: responses,
+      }
+    });
+  } catch (err) {
+    console.error("Error in /api/users/register:", err);
     res.status(500).json({ 
       success: false, 
       error: err.message 

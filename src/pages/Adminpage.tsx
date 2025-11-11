@@ -17,6 +17,7 @@ export default function Adminpage() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [registering, setRegistering] = useState(false);
 
   const [formData, setFormData] = useState({
     email: '',
@@ -32,12 +33,44 @@ export default function Adminpage() {
     });
   };
 
-  const handleRegister = () => {
-    if (formData.email && formData.password && formData.tokens && formData.responses) {
-      // TODO: Implement API call to register user
-      // For now, just show success message
-      setFormData({ email: '', password: '', tokens: '', responses: '' });
-      alert('User registration will be implemented with API endpoint');
+  const handleRegister = async () => {
+    if (!formData.email || !formData.password || !formData.tokens || !formData.responses) {
+      alert('Please fill in all fields');
+      return;
+    }
+
+    setRegistering(true);
+    try {
+      const response = await fetch('/api/users/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+          total_tokens: parseInt(formData.tokens),
+          total_responses: parseInt(formData.responses),
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setFormData({ email: '', password: '', tokens: '', responses: '' });
+        alert('User registered successfully!');
+        // Refresh users list if we're on the users tab
+        if (activeTab === 'users') {
+          fetchUsers();
+        }
+      } else {
+        alert(`Registration failed: ${data.error}`);
+      }
+    } catch (err) {
+      console.error('Error registering user:', err);
+      alert('Failed to register user. Please try again.');
+    } finally {
+      setRegistering(false);
     }
   };
 
@@ -197,9 +230,10 @@ export default function Adminpage() {
 
               <button
                 onClick={handleRegister}
-                className="w-full py-3 px-4 bg-[#15873f] hover:bg-[#127334] text-white font-semibold rounded-lg transition duration-200 shadow-lg"
+                disabled={registering}
+                className="w-full py-3 px-4 bg-[#15873f] hover:bg-[#127334] text-white font-semibold rounded-lg transition duration-200 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Register User
+                {registering ? 'Registering...' : 'Register User'}
               </button>
             </div>
           </div>
