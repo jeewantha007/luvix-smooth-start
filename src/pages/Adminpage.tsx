@@ -1,15 +1,22 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LogOut, UserPlus, Users } from 'lucide-react';
+
+interface User {
+  id: string;
+  email: string;
+  created_at?: string;
+  last_sign_in_at?: string;
+  remaining_tokens: number;
+  remaining_responses: number;
+}
 
 export default function Adminpage() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('register');
-  const [users, setUsers] = useState([
-    { id: 1, email: 'user1@example.com', tokens: 1000, responses: 50 },
-    { id: 2, email: 'user2@example.com', tokens: 500, responses: 25 },
-    { id: 3, email: 'user3@example.com', tokens: 2000, responses: 100 },
-  ]);
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
     email: '',
@@ -27,15 +34,10 @@ export default function Adminpage() {
 
   const handleRegister = () => {
     if (formData.email && formData.password && formData.tokens && formData.responses) {
-      const newUser = {
-        id: users.length + 1,
-        email: formData.email,
-        tokens: parseInt(formData.tokens),
-        responses: parseInt(formData.responses)
-      };
-      setUsers([...users, newUser]);
+      // TODO: Implement API call to register user
+      // For now, just show success message
       setFormData({ email: '', password: '', tokens: '', responses: '' });
-      alert('User registered successfully!');
+      alert('User registration will be implemented with API endpoint');
     }
   };
 
@@ -46,6 +48,34 @@ export default function Adminpage() {
       navigate('/admin', { replace: true });
     }
   }, [navigate]);
+
+  // Fetch users from API
+  const fetchUsers = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetch('/api/users');
+      const data = await response.json();
+      
+      if (data.success) {
+        setUsers(data.users || []);
+      } else {
+        setError(data.error || 'Failed to fetch users');
+      }
+    } catch (err) {
+      console.error('Error fetching users:', err);
+      setError('Failed to fetch users. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // Fetch users when component mounts or when switching to users tab
+  useEffect(() => {
+    if (activeTab === 'users') {
+      fetchUsers();
+    }
+  }, [activeTab, fetchUsers]);
 
   const handleLogout = () => {
     // Clear authentication state
@@ -178,29 +208,61 @@ export default function Adminpage() {
         {/* Existing Users List */}
         {activeTab === 'users' && (
           <div className="bg-zinc-900 rounded-lg p-6 border border-zinc-800">
-            <h2 className="text-2xl font-bold text-white mb-6">Existing Users</h2>
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-zinc-700">
-                    <th className="text-left py-3 px-4 text-zinc-300 font-semibold">ID</th>
-                    <th className="text-left py-3 px-4 text-zinc-300 font-semibold">Email</th>
-                    <th className="text-left py-3 px-4 text-zinc-300 font-semibold">Tokens</th>
-                    <th className="text-left py-3 px-4 text-zinc-300 font-semibold">Responses</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {users.map((user) => (
-                    <tr key={user.id} className="border-b border-zinc-800 hover:bg-zinc-800 transition">
-                      <td className="py-3 px-4 text-white">{user.id}</td>
-                      <td className="py-3 px-4 text-white">{user.email}</td>
-                      <td className="py-3 px-4 text-white">{user.tokens}</td>
-                      <td className="py-3 px-4 text-white">{user.responses}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-white">Existing Users</h2>
+              <button
+                onClick={fetchUsers}
+                disabled={loading}
+                className="px-4 py-2 bg-[#15873f] hover:bg-[#127334] text-white rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading ? 'Loading...' : 'Refresh'}
+              </button>
             </div>
+            
+            {error && (
+              <div className="mb-4 p-4 bg-red-900/50 border border-red-700 rounded-lg text-red-200">
+                {error}
+              </div>
+            )}
+
+            {loading && users.length === 0 ? (
+              <div className="text-center py-8 text-zinc-400">Loading users...</div>
+            ) : users.length === 0 ? (
+              <div className="text-center py-8 text-zinc-400">No users found</div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-zinc-700">
+                      <th className="text-left py-3 px-4 text-zinc-300 font-semibold">Email</th>
+                      <th className="text-left py-3 px-4 text-zinc-300 font-semibold">Remaining Tokens</th>
+                      <th className="text-left py-3 px-4 text-zinc-300 font-semibold">Remaining Responses</th>
+                      <th className="text-left py-3 px-4 text-zinc-300 font-semibold">Created At</th>
+                      <th className="text-left py-3 px-4 text-zinc-300 font-semibold">Last Sign In</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {users.map((user) => (
+                      <tr key={user.id} className="border-b border-zinc-800 hover:bg-zinc-800 transition">
+                        <td className="py-3 px-4 text-white">{user.email || 'N/A'}</td>
+                        <td className="py-3 px-4 text-white">{user.remaining_tokens ?? 0}</td>
+                        <td className="py-3 px-4 text-white">{user.remaining_responses ?? 0}</td>
+                        <td className="py-3 px-4 text-white">
+                          {user.created_at 
+                            ? new Date(user.created_at).toLocaleDateString() 
+                            : 'N/A'}
+                        </td>
+                        <td className="py-3 px-4 text-white">
+                          {user.last_sign_in_at 
+                            ? new Date(user.last_sign_in_at).toLocaleDateString() 
+                            : 'Never'}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         )}
       </div>
