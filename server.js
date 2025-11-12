@@ -428,7 +428,7 @@ app.post("/api/send-form", async (req, res) => {
   }
 });
 
-// GET endpoint to fetch all onboarding submissions
+// GET endpoint to fetch all onboarding submissions (only non-onboarded by default)
 app.get("/api/submissions", async (req, res) => {
   try {
     if (!supabase) {
@@ -438,10 +438,20 @@ app.get("/api/submissions", async (req, res) => {
       });
     }
 
-    const { data, error } = await supabase
+    // Get query parameter to show all or only non-onboarded
+    const showAll = req.query.all === 'true';
+
+    let query = supabase
       .from("onboarding_submissions")
       .select("*")
       .order("created_at", { ascending: false });
+
+    // Only show non-onboarded submissions by default
+    if (!showAll) {
+      query = query.eq("is_onboarded", false);
+    }
+
+    const { data, error } = await query;
 
     if (error) {
       console.error("Error fetching submissions:", error);
@@ -458,6 +468,54 @@ app.get("/api/submissions", async (req, res) => {
     });
   } catch (err) {
     console.error("Error in /api/submissions:", err);
+    res.status(500).json({ 
+      success: false, 
+      error: err.message 
+    });
+  }
+});
+
+// PATCH endpoint to mark submission as onboarded
+app.patch("/api/submissions/:id/onboard", async (req, res) => {
+  try {
+    if (!supabase) {
+      return res.status(500).json({ 
+        success: false, 
+        error: "Supabase client not configured." 
+      });
+    }
+
+    const { id } = req.params;
+
+    const { data, error } = await supabase
+      .from("onboarding_submissions")
+      .update({ is_onboarded: true })
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Error updating submission:", error);
+      return res.status(500).json({ 
+        success: false, 
+        error: error.message 
+      });
+    }
+
+    if (!data) {
+      return res.status(404).json({ 
+        success: false, 
+        error: "Submission not found" 
+      });
+    }
+
+    res.status(200).json({ 
+      success: true, 
+      message: "Submission marked as onboarded",
+      submission: data
+    });
+  } catch (err) {
+    console.error("Error in /api/submissions/:id/onboard:", err);
     res.status(500).json({ 
       success: false, 
       error: err.message 

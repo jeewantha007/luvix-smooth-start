@@ -1,7 +1,18 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, UserPlus, Users, FileText, Download, RefreshCw, Mail, Lock, Hash, MessageSquare } from 'lucide-react';
-
+import { LogOut, UserPlus, Users, FileText, Download, RefreshCw, Mail, Lock, Hash, MessageSquare, CheckCircle } from 'lucide-react';
+import { toast } from 'sonner';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import logo from '../components/steps/logo.png';
 interface User {
   id: string;
   email: string;
@@ -33,6 +44,8 @@ export default function Adminpage() {
   const [submissionsLoading, setSubmissionsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [registering, setRegistering] = useState(false);
+  const [onboardDialogOpen, setOnboardDialogOpen] = useState(false);
+  const [selectedSubmissionId, setSelectedSubmissionId] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
     email: '',
@@ -50,7 +63,7 @@ export default function Adminpage() {
 
   const handleRegister = async () => {
     if (!formData.email || !formData.password || !formData.tokens || !formData.responses) {
-      alert('Please fill in all fields');
+      toast.error('Please fill in all fields');
       return;
     }
 
@@ -73,16 +86,16 @@ export default function Adminpage() {
 
       if (data.success) {
         setFormData({ email: '', password: '', tokens: '', responses: '' });
-        alert('User registered successfully!');
+        toast.success('User registered successfully!');
         if (activeTab === 'users') {
           fetchUsers();
         }
       } else {
-        alert(`Registration failed: ${data.error}`);
+        toast.error(`Registration failed: ${data.error}`);
       }
     } catch (err) {
       console.error('Error registering user:', err);
-      alert('Failed to register user. Please try again.');
+      toast.error('Failed to register user. Please try again.');
     } finally {
       setRegistering(false);
     }
@@ -145,6 +158,7 @@ export default function Adminpage() {
 
   const handleExportSubmission = async (submissionId: string, businessName: string) => {
     try {
+      toast.loading('Exporting document...', { id: 'export' });
       const response = await fetch(`/api/submissions/${submissionId}/export`);
       
       if (!response.ok) {
@@ -160,9 +174,46 @@ export default function Adminpage() {
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
+      toast.success('Document exported successfully!', { id: 'export' });
     } catch (err) {
       console.error('Error exporting submission:', err);
-      alert('Failed to export submission. Please try again.');
+      toast.error('Failed to export submission. Please try again.', { id: 'export' });
+    }
+  };
+
+  // Handle mark as onboarded - open dialog
+  const handleMarkAsOnboarded = (submissionId: string) => {
+    setSelectedSubmissionId(submissionId);
+    setOnboardDialogOpen(true);
+  };
+
+  // Confirm mark as onboarded
+  const confirmMarkAsOnboarded = async () => {
+    if (!selectedSubmissionId) return;
+
+    try {
+      toast.loading('Marking as onboarded...', { id: 'onboard' });
+      const response = await fetch(`/api/submissions/${selectedSubmissionId}/onboard`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Refresh the submissions list
+        fetchSubmissions();
+        setOnboardDialogOpen(false);
+        setSelectedSubmissionId(null);
+        toast.success('Submission marked as onboarded successfully!', { id: 'onboard' });
+      } else {
+        toast.error(`Failed to mark as onboarded: ${data.error}`, { id: 'onboard' });
+      }
+    } catch (err) {
+      console.error('Error marking submission as onboarded:', err);
+      toast.error('Failed to mark submission as onboarded. Please try again.', { id: 'onboard' });
     }
   };
 
@@ -179,7 +230,7 @@ export default function Adminpage() {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-gradient-to-br from-[#15873f] to-[#0d5a29] rounded-lg flex items-center justify-center shadow-lg">
-                <span className="text-white font-bold text-xl">L</span>
+                <img src={logo} alt="Luvix" className="w-10 h-10" />
               </div>
               <h1 className="text-xl font-bold bg-gradient-to-r from-white to-zinc-400 bg-clip-text text-transparent">
                 Luvix Admin Panel
@@ -459,7 +510,7 @@ export default function Adminpage() {
                       <th className="text-left py-4 px-6 text-zinc-300 font-bold text-sm uppercase tracking-wide">Contact Name</th>
                       <th className="text-left py-4 px-6 text-zinc-300 font-bold text-sm uppercase tracking-wide">Email</th>
                       <th className="text-left py-4 px-6 text-zinc-300 font-bold text-sm uppercase tracking-wide">Business</th>
-                      <th className="text-left py-4 px-6 text-zinc-300 font-bold text-sm uppercase tracking-wide">Industry</th>
+                      <th className="text-left py-4 px-6 text-zinc-300 font-bold text-sm uppercase tracking-wide">Contact Phone</th>
                       <th className="text-left py-4 px-6 text-zinc-300 font-bold text-sm uppercase tracking-wide">Plan</th>
                       <th className="text-left py-4 px-6 text-zinc-300 font-bold text-sm uppercase tracking-wide">Date</th>
                       <th className="text-left py-4 px-6 text-zinc-300 font-bold text-sm uppercase tracking-wide">Actions</th>
@@ -471,7 +522,7 @@ export default function Adminpage() {
                         <td className="py-4 px-6 text-white font-medium">{submission.contact_name || 'N/A'}</td>
                         <td className="py-4 px-6 text-zinc-300">{submission.contact_email || 'N/A'}</td>
                         <td className="py-4 px-6 text-white font-medium">{submission.business_name || 'N/A'}</td>
-                        <td className="py-4 px-6 text-zinc-300">{submission.industry || 'N/A'}</td>
+                        <td className="py-4 px-6 text-zinc-300">{submission.contact_phone || 'N/A'}</td>
                         <td className="py-4 px-6">
                           <span className="inline-flex items-center px-3 py-1 bg-[#15873f]/20 text-[#15873f] rounded-full text-sm font-semibold">
                             {submission.selected_plan || 'N/A'}
@@ -483,14 +534,24 @@ export default function Adminpage() {
                             : 'N/A'}
                         </td>
                         <td className="py-4 px-6">
-                          <button
-                            onClick={() => handleExportSubmission(submission.id, submission.business_name)}
-                            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#15873f] to-[#0d5a29] hover:from-[#127334] hover:to-[#0a4821] text-white rounded-lg transition-all duration-200 text-sm font-medium shadow-md hover:shadow-lg hover:scale-105"
-                            title="Export as Word Document"
-                          >
-                            <Download size={16} />
-                            <span>Export</span>
-                          </button>
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => handleExportSubmission(submission.id, submission.business_name)}
+                              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#15873f] to-[#0d5a29] hover:from-[#127334] hover:to-[#0a4821] text-white rounded-lg transition-all duration-200 text-sm font-medium shadow-md hover:shadow-lg hover:scale-105"
+                              title="Export as Word Document"
+                            >
+                              <Download size={16} />
+                              <span>Export</span>
+                            </button>
+                            <button
+                              onClick={() => handleMarkAsOnboarded(submission.id)}
+                              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-lg transition-all duration-200 text-sm font-medium shadow-md hover:shadow-lg hover:scale-105"
+                              title="Mark as Onboarded"
+                            >
+                              <CheckCircle size={16} />
+                              <span>Onboard</span>
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))}
@@ -501,6 +562,24 @@ export default function Adminpage() {
           </div>
         )}
       </div>
+
+      {/* Onboard Confirmation Dialog */}
+      <AlertDialog open={onboardDialogOpen} onOpenChange={setOnboardDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Mark as Onboarded?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to mark this submission as onboarded? It will be removed from this list.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmMarkAsOnboarded} className="bg-[#15873f] hover:bg-[#127334]">
+              Confirm
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
