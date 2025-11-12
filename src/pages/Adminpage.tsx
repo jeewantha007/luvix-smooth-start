@@ -169,12 +169,12 @@ export default function Adminpage() {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `${businessName.replace(/\s+/g, "_")}_Onboarding_Form.docx`;
+      a.download = `${businessName.replace(/\s+/g, "_")}_Onboarding_Form.pdf`;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
-      toast.success('Document exported successfully!', { id: 'export' });
+      toast.success('PDF exported successfully!', { id: 'export' });
     } catch (err) {
       console.error('Error exporting submission:', err);
       toast.error('Failed to export submission. Please try again.', { id: 'export' });
@@ -538,7 +538,7 @@ export default function Adminpage() {
                             <button
                               onClick={() => handleExportSubmission(submission.id, submission.business_name)}
                               className="flex items-center gap-1.5 px-3 py-2 bg-gradient-to-r from-[#15873f] to-[#0d5a29] hover:from-[#127334] hover:to-[#0a4821] text-white rounded-lg transition-all duration-200 text-sm font-medium shadow-md hover:shadow-lg hover:scale-105"
-                              title="Export as Word Document"
+                              title="Export as PDF Document"
                             >
                               <Download size={14} />
                               <span>Export</span>

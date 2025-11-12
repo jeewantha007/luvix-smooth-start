@@ -1019,7 +1019,7 @@ const generateWordDocument = async (formData) => {
   return await Packer.toBuffer(new Document({ sections }));
 };
 
-// GET endpoint to export submission as Word document
+// GET endpoint to export submission as PDF document
 app.get("/api/submissions/:id/export", async (req, res) => {
   try {
     if (!supabase) {
@@ -1047,16 +1047,16 @@ app.get("/api/submissions/:id/export", async (req, res) => {
     // Convert database row to form data format
     const formData = convertDbRowToFormData(data);
 
-    // Generate Word document
-    const docBuffer = await generateWordDocument(formData);
+    // Generate PDF document using existing PDF generator
+    const pdfBuffer = await generatePDFBuffer(formData);
 
     // Set response headers for file download
-    const fileName = `${formData.businessName.replace(/\s+/g, "_")}_Onboarding_Form.docx`;
-    res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+    const fileName = `${formData.businessName.replace(/\s+/g, "_")}_Onboarding_Form.pdf`;
+    res.setHeader("Content-Type", "application/pdf");
     res.setHeader("Content-Disposition", `attachment; filename="${fileName}"`);
-    res.setHeader("Content-Length", docBuffer.length);
+    res.setHeader("Content-Length", pdfBuffer.length);
 
-    res.send(docBuffer);
+    res.send(pdfBuffer);
   } catch (err) {
     console.error("Error exporting submission:", err);
     res.status(500).json({ 
