@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, UserPlus, Users } from 'lucide-react';
+import { LogOut, UserPlus, Users, FileText, Download } from 'lucide-react';
 
 interface User {
   id: string;
@@ -11,11 +11,26 @@ interface User {
   remaining_responses: number;
 }
 
+interface Submission {
+  id: string;
+  business_name: string;
+  contact_name: string;
+  contact_email: string;
+  contact_phone?: string;
+  industry?: string;
+  selected_plan?: string;
+  success_looks?: string;
+  created_at: string;
+  signature_date?: string;
+}
+
 export default function Adminpage() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('register');
   const [users, setUsers] = useState<User[]>([]);
+  const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [loading, setLoading] = useState(false);
+  const [submissionsLoading, setSubmissionsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [registering, setRegistering] = useState(false);
 
@@ -103,12 +118,59 @@ export default function Adminpage() {
     }
   }, []);
 
+  // Fetch submissions from API
+  const fetchSubmissions = useCallback(async () => {
+    setSubmissionsLoading(true);
+    setError(null);
+    try {
+      const response = await fetch('/api/submissions');
+      const data = await response.json();
+      
+      if (data.success) {
+        setSubmissions(data.submissions || []);
+      } else {
+        setError(data.error || 'Failed to fetch submissions');
+      }
+    } catch (err) {
+      console.error('Error fetching submissions:', err);
+      setError('Failed to fetch submissions. Please try again.');
+    } finally {
+      setSubmissionsLoading(false);
+    }
+  }, []);
+
   // Fetch users when component mounts or when switching to users tab
   useEffect(() => {
     if (activeTab === 'users') {
       fetchUsers();
+    } else if (activeTab === 'submissions') {
+      fetchSubmissions();
     }
-  }, [activeTab, fetchUsers]);
+  }, [activeTab, fetchUsers, fetchSubmissions]);
+
+  // Handle export submission
+  const handleExportSubmission = async (submissionId: string, businessName: string) => {
+    try {
+      const response = await fetch(`/api/submissions/${submissionId}/export`);
+      
+      if (!response.ok) {
+        throw new Error('Failed to export submission');
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${businessName.replace(/\s+/g, "_")}_Onboarding_Form.docx`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (err) {
+      console.error('Error exporting submission:', err);
+      alert('Failed to export submission. Please try again.');
+    }
+  };
 
   const handleLogout = () => {
     // Clear authentication state
@@ -162,6 +224,17 @@ export default function Adminpage() {
           >
             <Users size={20} />
             Existing Users
+          </button>
+          <button
+            onClick={() => setActiveTab('submissions')}
+            className={`flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition ${
+              activeTab === 'submissions'
+                ? 'bg-[#15873f] text-white'
+                : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700'
+            }`}
+          >
+            <FileText size={20} />
+            New Submissions
           </button>
         </div>
 
@@ -290,6 +363,76 @@ export default function Adminpage() {
                           {user.last_sign_in_at 
                             ? new Date(user.last_sign_in_at).toLocaleDateString() 
                             : 'Never'}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* New Submissions Tab */}
+        {activeTab === 'submissions' && (
+          <div className="bg-zinc-900 rounded-lg p-6 border border-zinc-800">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-white">New Submissions</h2>
+              <button
+                onClick={fetchSubmissions}
+                disabled={submissionsLoading}
+                className="px-4 py-2 bg-[#15873f] hover:bg-[#127334] text-white rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {submissionsLoading ? 'Loading...' : 'Refresh'}
+              </button>
+            </div>
+            
+            {error && (
+              <div className="mb-4 p-4 bg-red-900/50 border border-red-700 rounded-lg text-red-200">
+                {error}
+              </div>
+            )}
+
+            {submissionsLoading && submissions.length === 0 ? (
+              <div className="text-center py-8 text-zinc-400">Loading submissions...</div>
+            ) : submissions.length === 0 ? (
+              <div className="text-center py-8 text-zinc-400">No submissions found</div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-zinc-700">
+                      <th className="text-left py-3 px-4 text-zinc-300 font-semibold">Name</th>
+                      <th className="text-left py-3 px-4 text-zinc-300 font-semibold">Email</th>
+                      <th className="text-left py-3 px-4 text-zinc-300 font-semibold">Business Name</th>
+                      <th className="text-left py-3 px-4 text-zinc-300 font-semibold">Industry</th>
+                      <th className="text-left py-3 px-4 text-zinc-300 font-semibold">Plan</th>
+                      <th className="text-left py-3 px-4 text-zinc-300 font-semibold">Submitted Date</th>
+                      <th className="text-left py-3 px-4 text-zinc-300 font-semibold">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {submissions.map((submission) => (
+                      <tr key={submission.id} className="border-b border-zinc-800 hover:bg-zinc-800 transition">
+                        <td className="py-3 px-4 text-white">{submission.contact_name || 'N/A'}</td>
+                        <td className="py-3 px-4 text-white">{submission.contact_email || 'N/A'}</td>
+                        <td className="py-3 px-4 text-white">{submission.business_name || 'N/A'}</td>
+                        <td className="py-3 px-4 text-white">{submission.industry || 'N/A'}</td>
+                        <td className="py-3 px-4 text-white">{submission.selected_plan || 'N/A'}</td>
+                        <td className="py-3 px-4 text-white">
+                          {submission.created_at 
+                            ? new Date(submission.created_at).toLocaleDateString() 
+                            : 'N/A'}
+                        </td>
+                        <td className="py-3 px-4">
+                          <button
+                            onClick={() => handleExportSubmission(submission.id, submission.business_name)}
+                            className="flex items-center gap-2 px-3 py-1.5 bg-[#15873f] hover:bg-[#127334] text-white rounded-lg transition text-sm"
+                            title="Export as Word Document"
+                          >
+                            <Download size={16} />
+                            Export
+                          </button>
                         </td>
                       </tr>
                     ))}
