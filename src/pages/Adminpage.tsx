@@ -37,7 +37,7 @@ interface Submission {
 
 export default function Adminpage() {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('register');
+  const [activeTab, setActiveTab] = useState('users');
   const [users, setUsers] = useState<User[]>([]);
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [loading, setLoading] = useState(false);
@@ -50,8 +50,8 @@ export default function Adminpage() {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
-    tokens: '',
-    responses: ''
+    tokens: '1000000',
+    responses: '1000'
   });
 
   const handleInputChange = (e) => {
@@ -85,7 +85,7 @@ export default function Adminpage() {
       const data = await response.json();
 
       if (data.success) {
-        setFormData({ email: '', password: '', tokens: '', responses: '' });
+        setFormData({ email: '', password: '', tokens: '1000000', responses: '1000' });
         toast.success('User registered successfully!');
         if (activeTab === 'users') {
           fetchUsers();
@@ -230,7 +230,7 @@ export default function Adminpage() {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-gradient-to-br from-[#15873f] to-[#0d5a29] rounded-lg flex items-center justify-center shadow-lg">
-                <img src={logo} alt="Luvix" className="w-10 h-10" />
+                <img src={logo} alt="Luvix" className="w-10 h-10 rounded-full object-cover border-2 border-white" />
               </div>
               <h1 className="text-xl font-bold bg-gradient-to-r from-white to-zinc-400 bg-clip-text text-transparent">
                 Luvix Admin Panel
@@ -248,20 +248,9 @@ export default function Adminpage() {
       </nav>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-[95%] xl:max-w-[98%] mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Enhanced Tab Navigation */}
         <div className="flex flex-wrap gap-3 mb-8">
-          <button
-            onClick={() => setActiveTab('register')}
-            className={`flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all duration-200 shadow-lg ${
-              activeTab === 'register'
-                ? 'bg-gradient-to-r from-[#15873f] to-[#0d5a29] text-white shadow-[#15873f]/50 scale-105'
-                : 'bg-zinc-800/80 backdrop-blur-sm text-zinc-400 hover:bg-zinc-700/80 hover:text-zinc-200'
-            }`}
-          >
-            <UserPlus size={20} />
-            <span>Register User</span>
-          </button>
           <button
             onClick={() => setActiveTab('users')}
             className={`flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all duration-200 shadow-lg ${
@@ -293,6 +282,17 @@ export default function Adminpage() {
                 {submissions.length}
               </span>
             )}
+          </button>
+          <button
+            onClick={() => setActiveTab('register')}
+            className={`flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all duration-200 shadow-lg ${
+              activeTab === 'register'
+                ? 'bg-gradient-to-r from-[#15873f] to-[#0d5a29] text-white shadow-[#15873f]/50 scale-105'
+                : 'bg-zinc-800/80 backdrop-blur-sm text-zinc-400 hover:bg-zinc-700/80 hover:text-zinc-200'
+            }`}
+          >
+            <UserPlus size={20} />
+            <span>Register User</span>
           </button>
         </div>
 
@@ -346,7 +346,7 @@ export default function Adminpage() {
                     value={formData.tokens}
                     onChange={handleInputChange}
                     className="w-full px-4 py-3.5 bg-zinc-800/80 border border-zinc-700/50 rounded-xl text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-[#15873f] focus:border-transparent transition-all duration-200 hover:border-zinc-600"
-                    placeholder="e.g., 10000"
+                    placeholder="Default: 1000000"
                     min="0"
                   />
                 </div>
@@ -362,7 +362,7 @@ export default function Adminpage() {
                     value={formData.responses}
                     onChange={handleInputChange}
                     className="w-full px-4 py-3.5 bg-zinc-800/80 border border-zinc-700/50 rounded-xl text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-[#15873f] focus:border-transparent transition-all duration-200 hover:border-zinc-600"
-                    placeholder="e.g., 100"
+                    placeholder="Default: 1000"
                     min="0"
                   />
                 </div>
@@ -503,52 +503,52 @@ export default function Adminpage() {
                 <p className="text-zinc-400 text-lg">No submissions found</p>
               </div>
             ) : (
-              <div className="overflow-x-auto rounded-xl border border-zinc-800/50">
-                <table className="w-full">
+              <div className="rounded-xl border border-zinc-800/50">
+                <table className="w-full table-auto">
                   <thead>
                     <tr className="bg-zinc-800/50">
-                      <th className="text-left py-4 px-6 text-zinc-300 font-bold text-sm uppercase tracking-wide">Contact Name</th>
-                      <th className="text-left py-4 px-6 text-zinc-300 font-bold text-sm uppercase tracking-wide">Email</th>
-                      <th className="text-left py-4 px-6 text-zinc-300 font-bold text-sm uppercase tracking-wide">Business</th>
-                      <th className="text-left py-4 px-6 text-zinc-300 font-bold text-sm uppercase tracking-wide">Contact Phone</th>
-                      <th className="text-left py-4 px-6 text-zinc-300 font-bold text-sm uppercase tracking-wide">Plan</th>
-                      <th className="text-left py-4 px-6 text-zinc-300 font-bold text-sm uppercase tracking-wide">Date</th>
-                      <th className="text-left py-4 px-6 text-zinc-300 font-bold text-sm uppercase tracking-wide">Actions</th>
+                      <th className="text-left py-4 px-4 text-zinc-300 font-bold text-sm uppercase tracking-wide w-[12%]">Contact Name</th>
+                      <th className="text-left py-4 px-4 text-zinc-300 font-bold text-sm uppercase tracking-wide w-[15%]">Email</th>
+                      <th className="text-left py-4 px-4 text-zinc-300 font-bold text-sm uppercase tracking-wide w-[15%]">Business</th>
+                      <th className="text-left py-4 px-4 text-zinc-300 font-bold text-sm uppercase tracking-wide w-[12%]">Contact Phone</th>
+                      <th className="text-left py-4 px-4 text-zinc-300 font-bold text-sm uppercase tracking-wide w-[10%]">Plan</th>
+                      <th className="text-left py-4 px-4 text-zinc-300 font-bold text-sm uppercase tracking-wide w-[12%]">Date</th>
+                      <th className="text-left py-4 px-4 text-zinc-300 font-bold text-sm uppercase tracking-wide w-[24%]">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {submissions.map((submission, index) => (
                       <tr key={submission.id} className={`border-t border-zinc-800/50 hover:bg-zinc-800/30 transition-colors ${index % 2 === 1 ? 'bg-zinc-800/10' : ''}`}>
-                        <td className="py-4 px-6 text-white font-medium">{submission.contact_name || 'N/A'}</td>
-                        <td className="py-4 px-6 text-zinc-300">{submission.contact_email || 'N/A'}</td>
-                        <td className="py-4 px-6 text-white font-medium">{submission.business_name || 'N/A'}</td>
-                        <td className="py-4 px-6 text-zinc-300">{submission.contact_phone || 'N/A'}</td>
-                        <td className="py-4 px-6">
+                        <td className="py-4 px-4 text-white font-medium">{submission.contact_name || 'N/A'}</td>
+                        <td className="py-4 px-4 text-zinc-300 truncate" title={submission.contact_email || 'N/A'}>{submission.contact_email || 'N/A'}</td>
+                        <td className="py-4 px-4 text-white font-medium truncate" title={submission.business_name || 'N/A'}>{submission.business_name || 'N/A'}</td>
+                        <td className="py-4 px-4 text-zinc-300">{submission.contact_phone || 'N/A'}</td>
+                        <td className="py-4 px-4">
                           <span className="inline-flex items-center px-3 py-1 bg-[#15873f]/20 text-[#15873f] rounded-full text-sm font-semibold">
                             {submission.selected_plan || 'N/A'}
                           </span>
                         </td>
-                        <td className="py-4 px-6 text-zinc-300">
+                        <td className="py-4 px-4 text-zinc-300">
                           {submission.created_at 
                             ? new Date(submission.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
                             : 'N/A'}
                         </td>
-                        <td className="py-4 px-6">
+                        <td className="py-4 px-4">
                           <div className="flex items-center gap-2">
                             <button
                               onClick={() => handleExportSubmission(submission.id, submission.business_name)}
-                              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#15873f] to-[#0d5a29] hover:from-[#127334] hover:to-[#0a4821] text-white rounded-lg transition-all duration-200 text-sm font-medium shadow-md hover:shadow-lg hover:scale-105"
+                              className="flex items-center gap-1.5 px-3 py-2 bg-gradient-to-r from-[#15873f] to-[#0d5a29] hover:from-[#127334] hover:to-[#0a4821] text-white rounded-lg transition-all duration-200 text-sm font-medium shadow-md hover:shadow-lg hover:scale-105"
                               title="Export as Word Document"
                             >
-                              <Download size={16} />
+                              <Download size={14} />
                               <span>Export</span>
                             </button>
                             <button
                               onClick={() => handleMarkAsOnboarded(submission.id)}
-                              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-lg transition-all duration-200 text-sm font-medium shadow-md hover:shadow-lg hover:scale-105"
+                              className="flex items-center gap-1.5 px-3 py-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-lg transition-all duration-200 text-sm font-medium shadow-md hover:shadow-lg hover:scale-105"
                               title="Mark as Onboarded"
                             >
-                              <CheckCircle size={16} />
+                              <CheckCircle size={14} />
                               <span>Onboard</span>
                             </button>
                           </div>
