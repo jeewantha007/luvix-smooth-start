@@ -30,8 +30,8 @@ jobs:
             set -xe
             echo "🚀 Deploying luvix-smooth-start..."
 
-            mkdir -p ${{ secrets.VPS_PATH }}
-            cd ${{ secrets.VPS_PATH }}
+            mkdir -p ${{ secrets.VPS_PATH }}/src
+            cd ${{ secrets.VPS_PATH }}/src
 
             if [ ! -d ".git" ]; then
               echo "First-time setup: cloning repo..."
