@@ -1,4 +1,4 @@
-name: Deploy to EC2
+name: Deploy to VPS
 
 on:
   push:
@@ -7,8 +7,9 @@ on:
 
 jobs:
   deploy:
-    name: Deploy to EC2
+    name: Deploy to Hostinger VPS
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
@@ -18,24 +19,22 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Deploy to EC2
-        uses: appleboy/ssh-action@v0.1.7
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_KEY }}
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
           port: 22
           script: |
             set -xe
-            echo "🚀 Deploying to EC2..."
+            echo "🚀 Deploying luvix-smooth-start..."
 
-            # Ensure project directory exists
-            mkdir -p ${{ secrets.EC2_PATH }}
-            cd ${{ secrets.EC2_PATH }}
+            mkdir -p ${{ secrets.VPS_PATH }}
+            cd ${{ secrets.VPS_PATH }}
 
-            # First‑time clone or pull
             if [ ! -d ".git" ]; then
-              echo "First‑time setup: cloning repo..."
+              echo "First-time setup: cloning repo..."
               git clone https://github.com/jeewantha007/luvix-smooth-start.git .
             else
               git reset --hard
@@ -43,14 +42,15 @@ jobs:
               git pull origin main
             fi
 
-            # Install dependencies
             npm install
-
-            # Build frontend
             npm run build
 
-            # Start or reload server with PM2
-            pm2 describe luvix-server || pm2 start server.js --name luvix-server --log /home/ubuntu/luvix-smooth-start/server.log --error /home/ubuntu/luvix-smooth-start/server-error.log
-            pm2 reload luvix-server
+            pm2 describe luvix-smooth-start || pm2 start server.js \
+              --name luvix-smooth-start \
+              --log /opt/apps/luvix-smooth-start/logs/server.log \
+              --error /opt/apps/luvix-smooth-start/logs/server-error.log
+
+            pm2 reload luvix-smooth-start
+            pm2 save
 
             echo "✅ Deployment finished!"
